@@ -5,6 +5,7 @@
 #include<vector>
 #include<ctime>
 #include<cstdlib>
+#include<conio.h>
 #include<io.h>
 #include<windows.h>
 #include<mmsystem.h>
@@ -65,10 +66,10 @@ private:
 	MusicMCI musicMci;										// 执行音乐播放操作的对象
 
 	wstring stringTowstring(const string& str);
+	void findMusicName(const string& path);
 public:
 	MusicPlayer();
 	~MusicPlayer();
-	void findMusicName(const string& path);
 	void playMusic(int num);
 	void pauseMusic();
 	void stopMusic();
@@ -78,5 +79,7 @@ public:
 	void wFile();
 	void rFile();
 	void showMusicName();
-	int chooseMusicPlay();
+	void chooseMusicPlay();
+	void chooseFunction();
+	void showPlayTime();
 };

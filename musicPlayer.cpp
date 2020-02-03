@@ -164,8 +164,12 @@ MusicPlayer::MusicPlayer()
 	file.close();
 	nowMusicName = "";
 
+	if (!musicPathName.empty())
+		musicPathName.pop_back();																		// 删除最后一个空白行
+
 	for (const auto& x : musicPathName)
-		musicName.push_back(x.substr(x.rfind("\\") + 1));												// 截取出音乐名
+		musicName.push_back(x.substr(x.rfind("\\") + 1,
+			x.size() - x.rfind("\\") - 1 - musicFormat.size() - 1));									// 截取出音乐名
 }
 
 
@@ -203,7 +207,7 @@ wstring MusicPlayer::stringTowstring(const string& str)
 {
 	wstring result;
 	// 获取缓冲区大小，并申请空间，缓冲区大小按字符计算
-	int len = MultiByteToWideChar(CP_ACP, 0, str.c_str(), str.size(), NULL, 0);
+	int len = MultiByteToWideChar(CP_ACP, 0, str.c_str(), str.size(), nullptr, 0);
 	TCHAR* buffer = new TCHAR[len + 1];
 	// 多字节编码转换成宽字节编码
 	MultiByteToWideChar(CP_ACP, 0, str.c_str(), str.size(), buffer, len);
@@ -278,7 +282,7 @@ int MusicPlayer::getPlayerBackTimeMusic()
 	else
 		cout << "获取播放时长失败！" << endl;
 
-	return playTime;
+	return playTime / 1000;
 }
 
 void MusicPlayer::wFile()
@@ -310,16 +314,54 @@ void MusicPlayer::showMusicName()
 
 	int i = 0;
 	for (auto& x : musicName)
-		cout << i++ << " " << x << endl;
+		cout << i++ << "  " << x << endl;
 }
 
-int MusicPlayer::chooseMusicPlay()
+void MusicPlayer::chooseMusicPlay()
 {
 	int choose = -1;
+	this->showMusicName();
 	cout << "请选择你想播放的歌曲：";
 	cin >> choose;
 
-	return choose;
+	this->stopMusic();
+	this->playMusic(choose);
+}
+
+void MusicPlayer::chooseFunction()
+{
+	int n = -1;
+	do
+	{
+		this->showPlayTime();
+
+		cout << "0.退出播放" << endl;
+		cout << "1.暂停播放" << endl;
+		cout << "2.设置音量" << endl;
+		cout << "3.选择其它音乐播放" << endl;
+		cout << "请输入你想选择的功能：";
+		Sleep(500);
+		system("cls");
+	} while (!_kbhit());
+	n = _getch() - '0';
+	switch (n)
+	{
+	case 0:cout << "已退出播放！" << endl; Sleep(1000); exit(0);
+	case 1:this->pauseMusic(); break;
+	case 2: {int vol = 300; cout << "请输入音量值（0-1000）：";
+		cin >> vol; this->setVolumeMusic(vol); break; }
+	case 3:this->chooseMusicPlay(); break;
+	default:cout << "选择错误！" << endl; break;
+	}
+}
+
+void MusicPlayer::showPlayTime()
+{
+	//static time_t start = time(nullptr);
+	const int t = this->getPlayerBackTimeMusic();
+	cout << "正在播放：" << nowMusicName << endl;
+	cout << "已播放：" << t / 60 << "分" << t % 60 << "秒" << endl;
+	cout << "按任意键进行功能选择！" << endl;
 }
 
 MusicPlayer::~MusicPlayer()
