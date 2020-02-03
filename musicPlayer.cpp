@@ -143,7 +143,7 @@ MusicPlayer::MusicPlayer()
 	if (!file.is_open())
 	{
 		cerr << "文件music.mn打开失败，此文件可能不存在" << endl;
-		cerr << "程序将尝试新疆此文件，并初始化文件内容" << endl;
+		cerr << "程序将尝试新建此文件，并初始化文件内容" << endl;
 
 		file.open("music.mn", ios_base::out);
 		if (!file.is_open())
