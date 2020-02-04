@@ -51,9 +51,8 @@ public:
 
 
 /***********************************************
- *                class MusicPlayer            *
+ *              class MusicPlayer              *
  ***********************************************/
-
 
 class MusicPlayer
 {
@@ -68,31 +67,30 @@ private:
 	int status = 0;											// 播放状态 0未播放 1正在播放 2暂停播放 3播放完毕
 	int vole = 500;											// 当前音量大小
 	int number = 0;											// 正在播放的音乐编号
-	int mode = 0;											// 音乐播放模式 0单个播放 1顺序播放(列表循环) 2随机播放
+	int mode = 1;											// 音乐播放模式 0单个播放 1顺序播放(列表循环) 2随机播放
 
-	wstring stringTowstring(const string& str);
+	wstring stringTowstring(const string& str);				// string转wstring
 	void findMusicName(const string& path);					// 寻找音乐文件
 	void getFilePath();										// 获取搜索路径
-	void wFile();
-	void rFile();
+	void wFile();											// 将musicPathName写入文件music.mn
+	void rFile();											// 将文件music.mn读取到musicPathName
 	void openMusic(int num);
 	void playMusic();
 	void pauseMusic();
 	void stopMusic();
 	void closeMusic();
 	void setVolumeMusic(int volume);
+	void setFilePath();										// 设置文件搜索路径
+	void setPlayMode();										// 设置音乐播放模式  单曲循环 顺序播放 随机播放
+	void showPlayTime();									// 显示正在播放音乐的信息
+	void showMusicName();									// 显示音乐名称列表
 	int getPlayerBackTimeMusic();							// 获取当前播放音乐的当前播放时长
 	int getTotalTime();										// 获取当前播放音乐的总时长
-	void setFilePath();										// 设置文件搜索路径
-	void setPlayMode();										// 设置音乐播放模式  顺序播放（列表循环） 随机播放 单个播放
-
 
 	void pos(int x, int y);									// 设置光标位置
 public:
 	MusicPlayer();
 	~MusicPlayer();
-	void showMusicName();
-	void showPlayTime();
 	void chooseMusicPlay();
 	int chooseFunction();
 };

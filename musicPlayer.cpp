@@ -93,7 +93,7 @@ BOOL MusicMCI::close()noexcept
 // 成功返回非零值，失败返回0
 BOOL MusicMCI::getPlayBackTime(DWORD& pos)noexcept
 {
-	MCI_STATUS_PARMS mciSP;
+	MCI_STATUS_PARMS mciSP{};
 
 	mciSP.dwItem = MCI_STATUS_POSITION;
 	const DWORD dwReturn = mciSendCommand(nDeviceID, MCI_STATUS,
@@ -114,11 +114,10 @@ BOOL MusicMCI::getPlayBackTime(DWORD& pos)noexcept
 // 成功返回TRUE，失败返回FALSE
 BOOL MusicMCI::getMusicTime(DWORD& time)noexcept
 {
-	MCI_STATUS_PARMS mciSP;
-	UINT DeviceID = nDeviceID;
+	MCI_STATUS_PARMS mciSP{};
 
 	mciSP.dwItem = MCI_STATUS_LENGTH;
-	const DWORD dwReturn = mciSendCommand(DeviceID, MCI_STATUS,
+	const DWORD dwReturn = mciSendCommand(nDeviceID, MCI_STATUS,
 		MCI_WAIT | MCI_STATUS_ITEM, (DWORD)static_cast<LPVOID>(&mciSP));		// 关键,取得长度
 	if (dwReturn == 0)
 	{
@@ -278,7 +277,7 @@ void MusicPlayer::setFilePath()
 	cout << "新的搜索路径为：" << temp << endl;
 	cout << "是否修改？（y/n）:";
 	char ch = 0;
-	ch = _getch();
+	cin >> ch;
 	if ('y' == ch || 'Y' == ch)
 	{
 		filePath = temp;
@@ -293,13 +292,27 @@ void MusicPlayer::setFilePath()
 			fp.close();
 			cout << "搜索路径写入完毕！" << endl;
 
+			int tnum = musicPathName.size();
 			findMusicName(filePath);							// 寻找音乐文件
+			file.open("music.mn", ios_base::out | ios_base::app);
+			if (!file.is_open())
+			{
+				cerr << "文件music.mn打开失败，请稍后重试此功能！" << endl;
+				Sleep(1000);
+			}
+			else
+			{
+				for (int i = tnum; i < musicPathName.size(); ++i)
+					file << musicPathName.at(i) << endl;
+
+				cout << "写入新歌曲名成功！" << endl;
+			}
 			cout << "以搜索完毕新路径下的歌曲！" << endl;
 		}
 	}
 	else
 	{
-		cout << "以取消修改！" << endl;
+		cout << "已取消修改！" << endl;
 	}
 }
 
@@ -320,17 +333,15 @@ wstring MusicPlayer::stringTowstring(const string& str)
 
 void MusicPlayer::pos(int x, int y)												 // 设置光标位置
 {
-	COORD pos;
-	HANDLE hOutput;
-	pos.X = x;
-	pos.Y = y;
+	COORD pos{ x,y };
+	HANDLE hOutput = nullptr;
 	hOutput = GetStdHandle(STD_OUTPUT_HANDLE);
 	SetConsoleCursorPosition(hOutput, pos);
 }
 
 void MusicPlayer::openMusic(int num)
 {
-	if (num > musicPathName.size())
+	if (num < 0 || num >= musicPathName.size())
 	{
 		cout << "参数不符合要求，请重试！" << endl;
 		return;
@@ -466,24 +477,33 @@ void MusicPlayer::chooseMusicPlay()
 	showMusicName();
 	cout << "请选择你想播放的歌曲：";
 	cin >> choose;
-	number = choose;
-
-	stopMusic();
-	closeMusic();
-	openMusic(choose);
+	if (choose >= 0 && choose <= (musicName.size() - 1))
+	{
+		number = choose;
+		stopMusic();
+		closeMusic();
+		openMusic(choose);
+	}
+	else
+	{
+		cout << "选择错误！" << endl;
+		Sleep(1000);
+	}
+	system("cls");
 }
 
 void MusicPlayer::setPlayMode()
 {
 	int cho = 0;
-	cout << "0.单个播放" << endl;
-	cout << "1.顺序播放(列表循环)" << endl;
+	cout << "0.单曲循环" << endl;
+	cout << "1.顺序播放" << endl;
 	cout << "2.随机播放" << endl;
 	cout << "当前播放模式：" << mode << endl;
-	cout << "请选择你要选择的播放模式：" << endl;
+	cout << "请选择你要选择的播放模式：";
 	cin >> cho;
 	if (cho >= 0 && cho <= 2)
 		mode = cho;
+	Sleep(1000);
 }
 
 int MusicPlayer::chooseFunction()
@@ -502,11 +522,11 @@ int MusicPlayer::chooseFunction()
 		showPlayTime();
 
 		pos(0, 0);
-		cout << "0.退出播放" << endl;
-		cout << "1.暂停播放" << endl;
-		cout << "2.继续播放" << endl;
-		cout << "3.设置音量" << endl;
-		cout << "4.选择其它音乐播放" << endl;
+		cout << "0.退出" << endl;
+		cout << "1.暂停" << endl;
+		cout << "2.继续" << endl;
+		cout << "3.音量调节" << endl;
+		cout << "4.选择音乐播放" << endl;
 		cout << "5.设置播放模式" << endl;
 		cout << "6.设置搜索路径" << endl;
 		cout << "请输入你想选择的功能：";
@@ -521,7 +541,8 @@ int MusicPlayer::chooseFunction()
 		cout << "当前音量：" << vole << endl;
 		cout << "请输入音量值（0-1000）：";
 		cin >> vol;
-		setVolumeMusic(vol); break; }
+		if (vol >= 0 && vol <= 1000)
+			setVolumeMusic(vol); break; }
 	case 4:chooseMusicPlay(); break;
 	case 5:setPlayMode(); break;
 	case 6:setFilePath(); break;
@@ -540,7 +561,7 @@ void MusicPlayer::showPlayTime()
 		Sleep(1000);
 		if (mode == 1)
 		{
-			openMusic(number + 1 > musicName.size() ? number + 1 : 0);
+			openMusic((number + 1) >= musicName.size() ? 0 : (number + 1));
 			system("cls");
 		}
 		else if (mode == 2)
@@ -565,8 +586,16 @@ void MusicPlayer::showPlayTime()
 	cout << "                                                                                                                            ";
 	pos(0, 28);
 	cout << "已播放：" << t / 60 << "分" << t % 60 << "秒"
-		<< "			" << "总时长：" << t0 / 60 << "分"
-		<< t0 % 60 << "秒" << endl;
+		<< "		" << "总时长：" << t0 / 60 << "分"
+		<< t0 % 60 << "秒" << "		" << "音量：" << vole
+		<< "		" << "播放模式：";
+	if (mode == 0)
+		cout << "单曲循环" << endl;
+	else if (mode == 1)
+		cout << "顺序播放" << endl;
+	else if (mode == 2)
+		cout << "随机播放" << endl;
+
 	Sleep(500);
 }
 
