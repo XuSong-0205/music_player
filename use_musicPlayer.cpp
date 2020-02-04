@@ -4,10 +4,8 @@ int main()
 {
 	MusicPlayer mp0;
 	mp0.chooseMusicPlay();									// —°‘Ò≤¢≤•∑≈“Ù¿÷
-
 	do
 	{
-		mp0.chooseFunction();
-	} while (1);
+	} while (mp0.chooseFunction());
 	return 0;
 }
