@@ -573,10 +573,13 @@ void MusicPlayer::deleteMusic()
 	if (ch == 'y' || ch == 'Y')
 	{
 		cout << "删除音乐中，请稍后..." << endl;
-		for (auto x : tvec)												// 删除对应下标的音乐名
+		std::sort(tvec.begin(), tvec.end());							// 对tvec进行排序，方便后边修正
+		for (auto i = 0; i < tvec.size();++i)							// 删除对应下标的音乐名
 		{
-			musicName.erase(musicName.begin() + x);
-			musicPathName.erase(musicPathName.begin() + x);
+			tvec.at(i) -= i;											// 先tvec进行修正操作
+
+			musicName.erase(musicName.begin() + tvec.at(i));
+			musicPathName.erase(musicPathName.begin() + tvec.at(i));
 		}
 		cout << "音乐列表删除完成！" << endl;
 		cout << "文件music.mn内容更新中..." << endl;

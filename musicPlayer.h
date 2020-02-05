@@ -3,6 +3,7 @@
 #include<fstream>
 #include<string>
 #include<vector>
+#include<algorithm>
 #include<ctime>
 #include<cstdlib>
 #include<conio.h>
