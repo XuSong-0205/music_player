@@ -2,7 +2,6 @@
 
 int main()
 {
-	srand(time(nullptr) & 0xffffffff);
 	MusicPlayer mp0;
 	mp0.chooseMusicPlay();									// —°‘Ò≤¢≤•∑≈“Ù¿÷
 	do
