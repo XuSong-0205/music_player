@@ -38,7 +38,6 @@ private:
 
 public:
 	MusicMCI()noexcept;										// 默认构造函数
-	~MusicMCI()noexcept;									// 析构函数
 	BOOL open(LPCWSTR strSongPath)noexcept;					// 打开音乐
 	BOOL play()noexcept;									// 播放音乐
 	BOOL pause()noexcept;									// 暂停音乐
@@ -64,22 +63,22 @@ private:
 	vector<string> musicPathName;							// 存储全路径音乐文件名
 	vector<string> musicName;								// 存储音乐文件名
 	MusicMCI musicMci;										// 执行音乐播放操作的对象
-	int status = 0;											// 播放状态 0未播放 1正在播放 2暂停播放 3播放完毕
-	int vole = 500;											// 当前音量大小
-	int number = 0;											// 正在播放的音乐编号
-	int mode = 1;											// 音乐播放模式 0单个播放 1顺序播放(列表循环) 2随机播放
+	size_t status = 0;										// 播放状态 0未播放 1正在播放 2暂停播放 3播放完毕
+	size_t vole = 500;										// 当前音量大小
+	size_t number = 0;										// 正在播放的音乐编号
+	size_t mode = 1;										// 音乐播放模式 0单个播放 1顺序播放(列表循环) 2随机播放
 
 	wstring stringTowstring(const string& str);				// string转wstring
 	void findMusicName(const string& path);					// 寻找音乐文件
 	void getFilePath();										// 获取搜索路径
 	void wFile();											// 将musicPathName写入文件music.mn
 	void rFile();											// 将文件music.mn读取到musicPathName
-	void openMusic(int num);
+	void openMusic(size_t num);
 	void playMusic();
 	void pauseMusic();
 	void stopMusic();
 	void closeMusic();
-	void setVolumeMusic(int volume);
+	void setVolumeMusic(size_t volume);
 	void setFilePath();										// 设置文件搜索路径
 	void setPlayMode();										// 设置音乐播放模式  单曲循环 顺序播放 随机播放
 	void showPlayTime();									// 显示正在播放音乐的信息
@@ -87,7 +86,7 @@ private:
 	int getPlayerBackTimeMusic();							// 获取当前播放音乐的当前播放时长
 	int getTotalTime();										// 获取当前播放音乐的总时长
 
-	void pos(int x, int y);									// 设置光标位置
+	void pos(short x, short y)noexcept;						// 设置光标位置
 public:
 	MusicPlayer();
 	~MusicPlayer();

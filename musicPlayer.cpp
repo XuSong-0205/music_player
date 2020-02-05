@@ -2,13 +2,9 @@
 
 
 //  MusiMusicMCI method
-MusicMCI::MusicMCI(void)noexcept
+MusicMCI::MusicMCI()noexcept
 {
 	nDeviceID = -1;
-}
-
-MusicMCI::~MusicMCI(void)noexcept
-{
 }
 
 // 打开文件
@@ -193,10 +189,6 @@ MusicPlayer::MusicPlayer()
 
 	if (!musicName.empty())
 		musicName.pop_back();
-
-	//for (const auto& x : musicPathName)
-	//	musicName.push_back(x.substr(x.rfind("\\") + 1,
-	//		x.size() - x.rfind("\\") - 1 - musicFormat.size() - 1));									// 截取出音乐名
 }
 
 
@@ -292,7 +284,7 @@ void MusicPlayer::setFilePath()
 			fp.close();
 			cout << "搜索路径写入完毕！" << endl;
 
-			int tnum = musicPathName.size();
+			const size_t tnum = musicPathName.size();
 			findMusicName(filePath);							// 寻找音乐文件
 			file.open("music.mn", ios_base::out | ios_base::app);
 			if (!file.is_open())
@@ -302,7 +294,7 @@ void MusicPlayer::setFilePath()
 			}
 			else
 			{
-				for (int i = tnum; i < musicPathName.size(); ++i)
+				for (size_t i = tnum; i < musicPathName.size(); ++i)
 					file << musicPathName.at(i) << endl;
 
 				cout << "写入新歌曲名成功！" << endl;
@@ -320,18 +312,16 @@ wstring MusicPlayer::stringTowstring(const string& str)
 {
 	wstring result;
 	// 获取缓冲区大小，并申请空间，缓冲区大小按字符计算
-	int len = MultiByteToWideChar(CP_ACP, 0, str.c_str(), str.size(), nullptr, 0);
-	TCHAR* buffer = new TCHAR[len + 1];
+	const int len = MultiByteToWideChar(CP_ACP, 0, str.c_str(), str.size(), nullptr, 0);
+	vector<TCHAR> buffer(len + 1);
 	// 多字节编码转换成宽字节编码
-	MultiByteToWideChar(CP_ACP, 0, str.c_str(), str.size(), buffer, len);
-	buffer[len] = '\0';															// 添加字符串结尾
-	// 删除缓冲区并返回值
-	result.append(buffer);
-	delete[] buffer;
+	MultiByteToWideChar(CP_ACP, 0, str.c_str(), str.size(), &buffer.at(0), len);
+	buffer.at(len) = '\0';														// 添加字符串结尾
+	result.append(&buffer.at(0));
 	return result;
 }
 
-void MusicPlayer::pos(int x, int y)												 // 设置光标位置
+void MusicPlayer::pos(short x, short y)noexcept									// 设置光标位置
 {
 	COORD pos{ x,y };
 	HANDLE hOutput = nullptr;
@@ -339,9 +329,9 @@ void MusicPlayer::pos(int x, int y)												 // 设置光标位置
 	SetConsoleCursorPosition(hOutput, pos);
 }
 
-void MusicPlayer::openMusic(int num)
+void MusicPlayer::openMusic(size_t num)
 {
-	if (num < 0 || num >= musicPathName.size())
+	if (num >= musicPathName.size())
 	{
 		cout << "参数不符合要求，请重试！" << endl;
 		return;
@@ -403,7 +393,7 @@ void MusicPlayer::closeMusic()
 		cout << "音乐关闭失败！" << endl;
 }
 
-void MusicPlayer::setVolumeMusic(int volume)
+void MusicPlayer::setVolumeMusic(size_t volume)
 {
 	if (musicMci.setVolume(volume))
 	{
@@ -466,18 +456,18 @@ void MusicPlayer::showMusicName()
 		return;
 	}
 
-	int i = 0;
+	size_t i = 0;
 	for (auto& x : musicName)
 		cout << i++ << "  " << x << endl;
 }
 
 void MusicPlayer::chooseMusicPlay()
 {
-	int choose = -1;
+	size_t choose = 0;
 	showMusicName();
 	cout << "请选择你想播放的歌曲：";
 	cin >> choose;
-	if (choose >= 0 && choose <= (musicName.size() - 1))
+	if (choose <= (musicName.size() - 1))
 	{
 		number = choose;
 		stopMusic();
@@ -494,16 +484,22 @@ void MusicPlayer::chooseMusicPlay()
 
 void MusicPlayer::setPlayMode()
 {
-	int cho = 0;
+	size_t cho = 0;
 	cout << "0.单曲循环" << endl;
 	cout << "1.顺序播放" << endl;
 	cout << "2.随机播放" << endl;
-	cout << "当前播放模式：" << mode << endl;
+	cout << "当前播放模式：";
+	if (mode == 0)
+		cout << "单曲循环" << endl;
+	else if (mode == 1)
+		cout << "顺序播放" << endl;
+	else if (mode == 2)
+		cout << "随机播放" << endl;
+
 	cout << "请选择你要选择的播放模式：";
 	cin >> cho;
-	if (cho >= 0 && cho <= 2)
+	if (cho <= 2)
 		mode = cho;
-	Sleep(1000);
 }
 
 int MusicPlayer::chooseFunction()
@@ -515,7 +511,7 @@ int MusicPlayer::chooseFunction()
 		chooseMusicPlay();
 	}
 
-	int n = -1;
+	size_t n = 10;
 	system("cls");
 	do
 	{
@@ -537,11 +533,11 @@ int MusicPlayer::chooseFunction()
 	case 0:cout << "已退出播放！" << endl; Sleep(1000); return 0;
 	case 1:pauseMusic(); break;
 	case 2:playMusic(); break;
-	case 3: {int vol = 0;;
+	case 3: {size_t vol = 0;
 		cout << "当前音量：" << vole << endl;
 		cout << "请输入音量值（0-1000）：";
 		cin >> vol;
-		if (vol >= 0 && vol <= 1000)
+		if (vol <= 1000)
 			setVolumeMusic(vol); break; }
 	case 4:chooseMusicPlay(); break;
 	case 5:setPlayMode(); break;
