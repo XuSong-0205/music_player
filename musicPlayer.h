@@ -58,14 +58,14 @@ class MusicPlayer
 private:
 	string filePath="";										// 要查找的文件路径
 	string musicFormat = "mp3";								// 要查找的文件格式
-	string nowMusicName;									// 正在播放的音乐
+	string nowMusicName;									// 正在操作的音乐名
 	fstream file;											// 存储全路径音乐名的文件对象
 	vector<string> musicPathName;							// 存储全路径音乐文件名
 	vector<string> musicName;								// 存储音乐文件名
 	MusicMCI musicMci;										// 执行音乐播放操作的对象
 	size_t status = 0;										// 播放状态 0未播放 1正在播放 2暂停播放 3播放完毕
 	size_t vole = 500;										// 当前音量大小
-	size_t number = 0;										// 正在播放的音乐编号
+	size_t number = 0;										// 正在操作的音乐编号
 	size_t mode = 1;										// 音乐播放模式 0单个播放 1顺序播放(列表循环) 2随机播放
 
 	wstring stringTowstring(const string& str);				// string转wstring

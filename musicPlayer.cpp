@@ -334,13 +334,15 @@ void MusicPlayer::openMusic(size_t num)
 	if (num >= musicPathName.size())
 	{
 		cout << "参数不符合要求，请重试！" << endl;
+		status = 0;
 		return;
 	}
 
 	wstring musci_name = stringTowstring(musicPathName.at(num));
+	nowMusicName.assign(musicName.at(num));							// 设置正在操作的音乐名
+	number = num;													// 设置正在操作的音乐名编号
 	if (musicMci.open(musci_name.c_str()))
 	{
-		nowMusicName.assign(musicName.at(num));				// 设置正在播放的音乐
 		cout << "音乐打开成功！" << endl;
 
 		playMusic();
@@ -348,8 +350,6 @@ void MusicPlayer::openMusic(size_t num)
 	}
 	else
 		cout << "音乐打开失败，请稍后重试！" << endl;
-
-	cout << musicPathName.at(num) << endl;
 }
 
 void MusicPlayer::playMusic()
@@ -360,7 +360,10 @@ void MusicPlayer::playMusic()
 		status = 1;
 	}
 	else
+	{
 		cout << "音乐" << nowMusicName << "播放失败！" << endl;
+		status = 0;
+	}
 }
 
 void MusicPlayer::pauseMusic()
@@ -388,7 +391,10 @@ void MusicPlayer::stopMusic()
 void MusicPlayer::closeMusic()
 {
 	if (musicMci.close())
+	{
 		cout << "音乐已关闭！" << endl;
+		status = 0;
+	}
 	else
 		cout << "音乐关闭失败！" << endl;
 }
@@ -551,19 +557,38 @@ void MusicPlayer::showPlayTime()
 {
 	const int t = getPlayerBackTimeMusic();
 	const int t0 = getTotalTime();
+	auto chonum = [](size_t a, size_t b) {return a > b ? 0 : ++a; };					// lamdom表达式
 	if (t == t0)
 	{
 		status = 3;
 		Sleep(1000);
 		if (mode == 1)
 		{
-			openMusic((number + 1) >= musicName.size() ? 0 : (number + 1));
+			openMusic(chonum(number + 1, musicName.size()));
+			system("cls");
+			if (!status)
+			{
+				cout << "音乐" << nowMusicName << "播放失败！" << endl;
+				cout << "将播放下一首音乐：" << musicName.at(chonum(number + 1, musicName.size())) << endl;
+				Sleep(2000);
+				openMusic(chonum(number + 1, musicName.size()));
+			}
 			system("cls");
 		}
 		else if (mode == 2)
 		{
 			openMusic(rand() % musicName.size());
 			system("cls");
+			if (!status)
+			{
+				const size_t stemp = rand() % musicName.size();
+				cout << "音乐" << nowMusicName << "播放失败！" << endl;
+				cout << "将播放下一首音乐：" << musicName.at(stemp) << endl;
+				Sleep(2000);
+				openMusic(stemp);
+			}
+			system("cls");
+
 		}
 	}
 	static int x = 120 / 2;
