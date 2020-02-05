@@ -574,7 +574,7 @@ void MusicPlayer::deleteMusic()
 	{
 		cout << "删除音乐中，请稍后..." << endl;
 		std::sort(tvec.begin(), tvec.end());							// 对tvec进行排序，方便后边修正
-		for (auto i = 0; i < tvec.size();++i)							// 删除对应下标的音乐名
+		for (decltype(tvec.size()) i = 0; i < tvec.size();++i)			// 删除对应下标的音乐名
 		{
 			tvec.at(i) -= i;											// 先tvec进行修正操作
 
