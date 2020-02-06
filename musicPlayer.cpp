@@ -156,15 +156,15 @@ BOOL MusicMCI::setVolume(size_t nVolumeValue)noexcept
 
 
 /**************************************************************************************************************
-* MusicPlayer method                                                                                          *
+* MusicData method                                                                                          *
 **************************************************************************************************************/
 
 /**************************************************************
-* MusicPalyer private method                                  *
+* MusicData private method                                    *
 **************************************************************/
 
 // 打开并播放音乐
-void MusicPlayer::openMusic(size_t num)
+void MusicData::openMusic(size_t num)
 {
 	if (num >= musicPathName.size())
 	{
@@ -181,14 +181,14 @@ void MusicPlayer::openMusic(size_t num)
 		cout << "音乐打开成功！" << endl;
 
 		playMusic();
-		setMusicVolume(vole);
+		musicMci.setVolume(volume);
 	}
 	else
 		cout << "音乐打开失败，请稍后重试！" << endl;
 }
 
 // 播放音乐
-void MusicPlayer::playMusic()
+void MusicData::playMusic()
 {
 	if (musicMci.play())
 	{
@@ -203,19 +203,22 @@ void MusicPlayer::playMusic()
 }
 
 // 暂停播放
-void MusicPlayer::pauseMusic()
+void MusicData::pauseMusic()
 {
-	if (musicMci.pause())
+	if (status)
 	{
-		cout << "音乐已暂停！" << endl;
-		status = 2;
+		if (musicMci.pause())
+		{
+			cout << "音乐已暂停！" << endl;
+			status = 2;
+		}
+		else
+			cout << "音乐暂停失败！" << endl;
 	}
-	else
-		cout << "音乐暂停失败！" << endl;
 }
 
 // 停止播放
-void MusicPlayer::stopMusic()
+void MusicData::stopMusic()
 {
 	if (musicMci.stop())
 	{
@@ -227,7 +230,7 @@ void MusicPlayer::stopMusic()
 }
 
 // 关闭音乐
-void MusicPlayer::closeMusic()
+void MusicData::closeMusic()
 {
 	if (musicMci.close())
 	{
@@ -239,32 +242,38 @@ void MusicPlayer::closeMusic()
 }
 
 // 获取音乐当前播放时间
-int MusicPlayer::getPlayerBackTimeMusic()
+int MusicData::getPlayerBackTimeMusic()
 {
-	DWORD playTime = 0;
-	if (!musicMci.getPlayBackTime(playTime))
+	if (status)
 	{
-		cout << "获取播放时长失败！" << endl;
-		return 0;
+		DWORD playTime = 0;
+		if (!musicMci.getPlayBackTime(playTime))
+		{
+			cout << "获取播放时长失败！" << endl;
+			return 0;
+		}
+		return playTime / 1000;
 	}
-	return playTime / 1000;
 }
 
 // 获取音乐总播放时间
-int MusicPlayer::getTotalTime()
+int MusicData::getTotalTime()
 {
-	DWORD totalTime = 0;
-	if (!musicMci.getMusicTime(totalTime))
+	if (status)
 	{
-		cout << "获取总时长失败！" << endl;
-		return 0;
+		DWORD totalTime = 0;
+		if (!musicMci.getMusicTime(totalTime))
+		{
+			cout << "获取总时长失败！" << endl;
+			return 0;
+		}
+		return totalTime / 1000;
 	}
-	return totalTime / 1000;
 }
 
 
 // string转wstring
-wstring MusicPlayer::stringTowstring(const string& str)
+wstring MusicData::stringTowstring(const string& str)
 {
 	wstring result;
 	// 获取缓冲区大小，并申请空间，缓冲区大小按字符计算
@@ -277,20 +286,10 @@ wstring MusicPlayer::stringTowstring(const string& str)
 	return result;
 }
 
-// 设置光标位置
-void MusicPlayer::pos(short x, short y)noexcept
-{
-	COORD pos{ x,y };
-	HANDLE hOutput = nullptr;
-	hOutput = GetStdHandle(STD_OUTPUT_HANDLE);
-	SetConsoleCursorPosition(hOutput, pos);
-}
-
 // 从文件filePath.ad中读取搜索路径
-void MusicPlayer::getFilePath()
+void MusicData::getFilePath()
 {
 	fstream fPath("filePath.ad", ios_base::in);
-	string temp;
 	if (!fPath.is_open())
 	{
 		cerr << "文件filePath.ad打开失败，此文件可能不存在！" << endl;
@@ -309,19 +308,12 @@ void MusicPlayer::getFilePath()
 	}
 	else
 	{
-		getline(fPath, temp);
-		if (temp.empty() || temp.at(0) == '\n')
-		{
-			cout << "文件内容为空！" << endl;
-			cout << "文件路径设置为默认！" << endl;
-		}
-		else
-			filePath = std::move(temp);
+		wFilePath(fPath);
 	}
 }
 
 // 获取特定格式的文件名    
-void MusicPlayer::findMusicName(const string& path)
+void MusicData::findMusicName(const string& path)
 {
 	long  hFile = 0;																					// 文件句柄  64位下long 改为 intptr_t
 	struct _finddata_t fileinfo;																		//	文件信息 
@@ -355,8 +347,29 @@ void MusicPlayer::findMusicName(const string& path)
 	}
 }
 
+// 将filePath写入文件filePath.ad
+void MusicData::wFilePath(fstream& file)
+{
+	file << filePath << endl;
+}
+
+// 将文件filePath.ad读取到filePath
+void MusicData::rFilePath(fstream& file)
+{
+	string temp;
+	getline(file, temp);
+	if (temp.empty() || temp.at(0) == '\n')
+	{
+		cout << "文件内容为空！" << endl;
+		cout << "文件路径设置为默认！" << endl;
+	}
+	else
+		filePath = std::move(temp);
+}
+
+
 // 将musicPathName写入文件music.mn中
-void MusicPlayer::wFile(fstream& file)
+void MusicData::wFileMusic(fstream& file)
 {
 	if (!musicPathName.empty())
 		for (auto& x : musicPathName)
@@ -365,7 +378,7 @@ void MusicPlayer::wFile(fstream& file)
 }
 
 // 从music.mn读取到musicPathName和musicName中
-void MusicPlayer::rFile(fstream& file)
+void MusicData::rFileMusic(fstream& file)
 {
 	string s;
 	do
@@ -380,237 +393,40 @@ void MusicPlayer::rFile(fstream& file)
 }
 
 // 设置音乐音量
-void MusicPlayer::setMusicVolume(size_t volume)
+void MusicData::setMusicVolume(size_t vol)
 {
-	if (musicMci.setVolume(volume))
+	if (status)
 	{
-		cout << "音量设置成功！" << endl;
-		vole = volume;
-	}
-	else
-		cout << "音量设置失败！" << endl;
-}
-
-// 设置搜索路径并写入filePath.ad中
-void MusicPlayer::setFilePath()
-{
-	string temp;
-	cout << "当前搜索路径为：" << filePath << endl;
-	cout << "请输入新的搜索路径(请输入绝对路径！)：";
-	cin >> temp;
-	cout << "新的搜索路径为：" << temp << endl;
-	cout << "是否修改？（y/n）:";
-	char ch = 0;
-	cin >> ch;
-	if ('y' == ch || 'Y' == ch)
-	{
-		filePath = temp;
-		fstream fp("filePath.ad", ios_base::out);
-		if (!fp.is_open())
-		{
-			cerr << "文件filePath.ad打开失败，请稍后重试！" << endl;
-		}
+		if (musicMci.setVolume(vol))
+			volume = vol;
 		else
-		{
-			fp << filePath << endl;
-			fp.close();
-			cout << "搜索路径写入完毕！" << endl;
-
-			const size_t tnum = musicPathName.size();
-			findMusicName(filePath);							// 寻找音乐文件
-			fstream file("music.mn", ios_base::out | ios_base::app);
-			if (!file.is_open())
-			{
-				cerr << "文件music.mn打开失败，请稍后重试此功能！" << endl;
-				Sleep(1000);
-			}
-			else
-			{
-				for (size_t i = tnum; i < musicPathName.size(); ++i)
-					file << musicPathName.at(i) << endl;
-
-				cout << "写入新歌曲名成功！" << endl;
-			}
-			cout << "以搜索完毕新路径下的歌曲！" << endl;
-		}
+			cout << "音量设置失败！" << endl;
 	}
 	else
 	{
-		cout << "已取消修改！" << endl;
+		volume = vol;
 	}
 }
 
-// 设置播放模式
-void MusicPlayer::setPlayMode()
+// 删除歌曲
+void MusicData::deleteMusicData(vector<int>& vec)		
 {
-	size_t cho = 0;
-	cout << "0.单曲循环" << endl;
-	cout << "1.顺序播放" << endl;
-	cout << "2.随机播放" << endl;
-	cout << "当前播放模式：";
-	if (mode == 0)
-		cout << "单曲循环" << endl;
-	else if (mode == 1)
-		cout << "顺序播放" << endl;
-	else if (mode == 2)
-		cout << "随机播放" << endl;
+	sort(vec.begin(), vec.end());										// 对其进行排序，方便下面修正
+	for (decltype(vec.size()) i = 0; i < vec.size(); ++i)
+	{
+		vec.at(i) -= i;													// 修正要删除的下标信息
 
-	cout << "请选择你要选择的播放模式：";
-	cin >> cho;
-	if (cho <= 2)
-		mode = cho;
+		musicName.erase(musicName.begin() + vec.at(i));					// 删除对应下标的数据
+		musicPathName.erase(musicPathName.begin() + vec.at(i));
+	}
 }
-
-// 显示音乐播放列表
-void MusicPlayer::showMusicName()
-{
-	if (musicName.empty())
-	{
-		cout << "无播放列表！" << endl;
-		return;
-	}
-
-	size_t i = 0;
-	cout << "播放列表：" << endl;
-	for (auto& x : musicName)
-		cout << i++ << "  " << x << endl;
-}
-
-// 显示播放信息
-void MusicPlayer::showPlayInformation()
-{
-	const int t = getPlayerBackTimeMusic();
-	const int t0 = getTotalTime();
-	auto chonum = [](size_t a, size_t b)noexcept {return a > b ? 0 : ++a; };	// lamdom表达式
-	if (t == t0)																// 播放是否结束
-	{
-		status = 3;
-		Sleep(1000);
-		if (mode == 0)
-		{
-			stopMusic();
-			closeMusic();
-			openMusic(number);
-			system("cls");
-		}
-		else if (mode == 1)
-		{
-			openMusic(chonum(number + 1, musicName.size()));
-			system("cls");
-			if (!status)
-			{
-				cout << "音乐" << nowMusicName << "播放失败！" << endl;
-				cout << "将播放下一首音乐：" << musicName.at(chonum(number + 1, musicName.size())) << endl;
-				Sleep(2000);
-				openMusic(chonum(number + 1, musicName.size()));
-			}
-			system("cls");
-		}
-		else if (mode == 2)
-		{
-			openMusic(rand() % musicName.size());
-			system("cls");
-			if (!status)
-			{
-				const size_t stemp = rand() % musicName.size();
-				cout << "音乐" << nowMusicName << "播放失败！" << endl;
-				cout << "将播放下一首音乐：" << musicName.at(stemp) << endl;
-				Sleep(2000);
-				openMusic(stemp);
-			}
-			system("cls");
-		}
-	}
-	static short x = 120 / 2;
-	if (status == 1)
-		x = --x < 0 ? 120 : --x;
-	pos(0, 27);
-	cout << "                                                                                                                            ";
-	pos(x, 27);
-	if (status == 1)
-		cout << "正在播放：" << nowMusicName << endl;
-	else if (status == 2)
-		cout << "已暂停播放：" << nowMusicName << endl;
-	else if (status == 3)
-		cout << "播放结束：" << nowMusicName << endl;
-	pos(0, 28);
-	cout << "                                                                                                                            ";
-	pos(0, 28);
-	cout << "已播放：" << t / 60 << "分" << t % 60 << "秒"
-		<< "		" << "总时长：" << t0 / 60 << "分"
-		<< t0 % 60 << "秒" << "		" << "音量：" << vole
-		<< "		" << "播放模式：";
-	if (mode == 0)
-		cout << "单曲循环" << endl;
-	else if (mode == 1)
-		cout << "顺序播放" << endl;
-	else if (mode == 2)
-		cout << "随机播放" << endl;
-}
-
-// 删除音乐
-void MusicPlayer::deleteMusic()
-{
-	system("cls");
-	showMusicName();
-	cout << "（提示：输入想删除音乐的序号并回车，若输入完毕，输入非数字即可！）" << endl;
-	cout << "请输入你想删除的音乐：";
-	vector<int> tvec;
-	int it = 0;
-	while (cin >> it)
-	{
-		tvec.push_back(it);
-		cout << "请输入你想删除的音乐：";
-	}
-	cin.clear();
-	while (cin.get() != '\n');											// 清空输入缓冲区
-	cout << "将要删除以下歌曲：" << endl;
-	for (auto x : tvec)
-		cout << x << "  " << musicName.at(x) << endl;
-	cout << "是否删除?（y/n）:";
-	char ch = 0;
-	cin >> ch;
-	if (ch == 'y' || ch == 'Y')
-	{
-		cout << "删除音乐中，请稍后..." << endl;
-		std::sort(tvec.begin(), tvec.end());							// 对tvec进行排序，方便后边修正
-		for (decltype(tvec.size()) i = 0; i < tvec.size();++i)			// 删除对应下标的音乐名
-		{
-			tvec.at(i) -= i;											// 先tvec进行修正操作
-
-			musicName.erase(musicName.begin() + tvec.at(i));
-			musicPathName.erase(musicPathName.begin() + tvec.at(i));
-		}
-		cout << "音乐列表删除完成！" << endl;
-		cout << "文件music.mn内容更新中..." << endl;
-
-		fstream ft("music.mn", ios_base::out);
-		if (!ft.is_open())
-		{
-			cerr << "文件music.mn打开失败了，请稍后重试！" << endl;
-		}
-		else
-		{
-			for (auto& x : musicPathName)
-				ft << x << endl;
-			ft.close();
-			cout << "文件music.mn内容更新完成！" << endl;
-		}
-	}
-	else
-	{
-		cout << "已取消音乐删除！" << endl;
-	}
-	Sleep(2000);
-}
-
 
 /**************************************************************
-*  MusicPlayer public method                                  *
+*  MusicData public method                                    *
 **************************************************************/
 
 // 默认构造函数
-MusicPlayer::MusicPlayer()
+MusicData::MusicData()
 {
 	srand(time(nullptr) & 0xffffffff);
 	getFilePath();																// 初始化搜索的文件路径
@@ -634,10 +450,10 @@ MusicPlayer::MusicPlayer()
 
 		cout << "文件music.mn创建成功！" << endl;
 		findMusicName(filePath);
-		wFile(file);
+		wFileMusic(file);
 	}
 
-	rFile(file);
+	rFileMusic(file);
 	file.close();
 	nowMusicName = "";
 
@@ -649,9 +465,160 @@ MusicPlayer::MusicPlayer()
 }
 
 // 析构函数
-MusicPlayer::~MusicPlayer()
+MusicData::~MusicData()
 {
 	closeMusic();
+}
+
+
+
+/**********************************************************************************************************************
+*  class MusicPlayer                                                                                                  *
+**********************************************************************************************************************/
+
+/**************************************************************
+* MusicPlayer private method                                  *
+**************************************************************/
+
+// 设置光标位置
+void MusicPlayer::pos(short x, short y)noexcept
+{
+	COORD pos{ x,y };
+	HANDLE hOutput = nullptr;
+	hOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+	SetConsoleCursorPosition(hOutput, pos);
+}
+
+// 设置音乐音量
+void MusicPlayer::setMusicVolume()
+{
+	size_t vol = 0;
+	cout << "当前音量：" << musicData.volume << endl;
+	cout << "请输入音量值（0-1000）：";
+	cin >> vol;
+	if (vol <= 1000)
+		musicData.setMusicVolume(vol);
+	else
+	{
+		cout << "输入错误！" << endl;
+		Sleep(1000);
+	}
+}
+
+// 设置搜索路径并写入filePath.ad中
+void MusicPlayer::setFilePath()
+{
+	string temp;
+	cout << "当前搜索路径为：" << musicData.filePath << endl;
+	cout << "请输入新的搜索路径(请输入绝对路径！)：";
+	cin >> temp;
+	cout << "新的搜索路径为：" << temp << endl;
+	cout << "是否修改？（y/n）:";
+	char ch = 0;
+	cin >> ch;
+	if ('y' == ch || 'Y' == ch)
+	{
+		musicData.filePath = temp;
+		fstream fp("filePath.ad", ios_base::out);
+		if (!fp.is_open())
+		{
+			cerr << "文件filePath.ad打开失败，请稍后重试！" << endl;
+		}
+		else
+		{
+			musicData.wFilePath(fp);										
+			fp.close();
+			cout << "搜索路径写入完毕！" << endl;
+
+			musicData.findMusicName(musicData.filePath);					// 寻找音乐文件
+			fstream file("music.mn", ios_base::out);						// 截断打开，重新写入
+			if (!file.is_open())
+			{
+				cerr << "文件music.mn打开失败，请稍后重试此功能！" << endl;
+				Sleep(1000);
+			}
+			else
+			{
+				musicData.wFileMusic(file);									// 写入音乐全路径名
+				file.close();
+				cout << "写入新歌曲名成功！" << endl;
+			}
+			cout << "以搜索完毕新路径下的歌曲！" << endl;
+		}
+	}
+	else
+	{
+		cout << "已取消修改！" << endl;
+	}
+}
+
+// 设置播放模式
+void MusicPlayer::setPlayMode()
+{
+	size_t cho = 0;
+	cout << "0.单曲循环" << endl;
+	cout << "1.顺序播放" << endl;
+	cout << "2.随机播放" << endl;
+	cout << "当前播放模式：";
+	if (musicData.mode == 0)
+		cout << "单曲循环" << endl;
+	else if (musicData.mode == 1)
+		cout << "顺序播放" << endl;
+	else if (musicData.mode == 2)
+		cout << "随机播放" << endl;
+
+	cout << "请选择你要选择的播放模式：";
+	cin >> cho;
+	if (cho <= 2)
+		musicData.mode = cho;
+}
+
+// 删除音乐
+void MusicPlayer::deleteMusic()
+{
+	system("cls");
+	showMusicName();
+	cout << "（提示：输入想删除音乐的序号并回车，若输入完毕，输入非数字即可！）" << endl;
+	cout << "请输入你想删除的音乐：";
+	vector<int> tvec;
+	int it = 0;
+	while (cin >> it)
+	{
+		tvec.push_back(it);
+		cout << "请输入你想删除的音乐：";
+	}
+	cin.clear();
+	while (cin.get() != '\n');											// 清空输入缓冲区
+	cout << "将要删除以下歌曲：" << endl;
+	for (auto x : tvec)
+		cout << x << "  " << musicData.musicName.at(x) << endl;
+	cout << "是否删除?（y/n）:";
+	char ch = 0;
+	cin >> ch;
+	if (ch == 'y' || ch == 'Y')
+	{
+		cout << "删除音乐中，请稍后..." << endl;
+		musicData.deleteMusicData(tvec);								// 删除其中的音乐
+		cout << "音乐列表删除完成！" << endl;
+		cout << "文件music.mn内容更新中..." << endl;
+
+		fstream ft("music.mn", ios_base::out);
+		if (!ft.is_open())
+		{
+			cerr << "文件music.mn打开失败了，请稍后重试！" << endl;
+		}
+		else
+		{
+			musicData.wFileMusic(ft);
+			ft.close();
+			cout << "文件music.mn内容更新完成！" << endl;
+		}
+	}
+	else
+	{
+		cout << "已取消音乐删除！" << endl;
+	}
+	Sleep(2000);
 }
 
 // 选择音乐播放
@@ -660,34 +627,135 @@ void MusicPlayer::chooseMusicPlay()
 	system("cls");
 	size_t choose = 0;
 	showMusicName();
+	cout << "（提示：输入超出范围的值将退出选择！）" << endl;
 	cout << "请选择你想播放的歌曲：";
 	cin >> choose;
-	if (choose <= (musicName.size() - 1))
+	if (choose < musicData.musicName.size())
 	{
-		number = choose;
-		stopMusic();
-		closeMusic();
-		openMusic(choose);
+		musicData.number = choose;
+		if (musicData.status)
+			musicData.closeMusic();
+		musicData.openMusic(choose);
 	}
 	else
 	{
-		cout << "选择错误！" << endl;
+		cout << "已退出选择！" << endl;
 		Sleep(1000);
 	}
 	system("cls");
 }
 
+// 显示音乐播放列表
+void MusicPlayer::showMusicName()
+{
+	if (musicData.musicName.empty())
+	{
+		cout << "无播放列表！" << endl;
+		return;
+	}
+
+	size_t i = 0;
+	cout << "播放列表：" << endl;
+	for (auto& x : musicData.musicName)
+		cout << i++ << "  " << x << endl;
+}
+
+// 显示播放信息
+void MusicPlayer::showPlayInformation()
+{
+	int t = 0, t0 = 0;
+	if (musicData.status)
+	{
+		t = musicData.getPlayerBackTimeMusic();
+		t0 = musicData.getTotalTime();
+	}
+	auto chonum = [](size_t a, size_t b)noexcept {return a > b ? 0 : a; };		// lamdom表达式
+	if (musicData.status && t == t0)											// 播放是否结束
+	{
+		musicData.status = 3;
+		musicData.closeMusic();
+		if (musicData.mode == 0)
+		{
+			musicData.openMusic(musicData.number);
+			system("cls");
+		}
+		else if (musicData.mode == 1)
+		{
+			musicData.openMusic(chonum(musicData.number + 1, musicData.musicName.size() - 1));
+			system("cls");
+			if (!musicData.status)
+			{
+				cout << "音乐" << musicData.nowMusicName << "播放失败！" << endl;
+				cout << "即将播放下一首音乐：" << musicData.musicName.at(chonum(musicData.number + 1,
+					musicData.musicName.size() - 1)) << endl;
+				Sleep(2000);
+				musicData.openMusic(chonum(musicData.number + 1, musicData.musicName.size()));
+			}
+			system("cls");
+		}
+		else if (musicData.mode == 2)
+		{
+			musicData.openMusic(rand() % musicData.musicName.size());
+			system("cls");
+			if (!musicData.status)
+			{
+				const size_t stemp = rand() % musicData.musicName.size();
+				cout << "音乐：" << musicData.nowMusicName << "  播放失败！" << endl;
+				cout << "即将播放下一首音乐：" << musicData.musicName.at(stemp) << endl;
+				Sleep(2000);
+				musicData.openMusic(stemp);
+			}
+			system("cls");
+		}
+	}
+	static short x = 120 / 2;
+	if (musicData.status == 1)
+		x = --x < 0 ? 120 : --x;
+	pos(0, 27);
+	cout << "                                                                                                                            ";
+	pos(x, 27);
+	if (musicData.status == 0)
+		cout << "暂无播放！" << endl;
+	else if (musicData.status == 1)
+		cout << "正在播放：" << musicData.nowMusicName << endl;
+	else if (musicData.status == 2)
+		cout << "已暂停播放：" << musicData.nowMusicName << endl;
+	else if (musicData.status == 3)
+		cout << "播放结束：" << musicData.nowMusicName << endl;
+
+	pos(0, 28);
+	cout << "                                                                                                                            ";
+	pos(0, 28);
+	cout << "已播放：" << t / 60 << "分" << t % 60 << "秒" << "			"
+		<< "总时长：" << t0 / 60 << "分" << t0 % 60 << "秒" << "		"
+		<< "音量：" << musicData.volume << "		"
+		<< "播放模式：";
+	if (musicData.mode == 0)
+		cout << "单曲循环" << endl;
+	else if (musicData.mode == 1)
+		cout << "顺序播放" << endl;
+	else if (musicData.mode == 2)
+		cout << "随机播放" << endl;
+}
+
+
+/**************************************************************
+* MusicPlayer public method                                   *
+**************************************************************/
+
+MusicPlayer::MusicPlayer()
+{
+
+}
+
+MusicPlayer::~MusicPlayer()
+{
+
+}
+
 // 功能选择
 int MusicPlayer::chooseFunction()
 {
-	while (!status)
-	{
-		system("cls");
-		cout << "音乐播放失败，请重新进行选择！" << endl;
-		chooseMusicPlay();
-	}
-
-	size_t n = 10;
 	system("cls");
 	do
 	{
@@ -705,18 +773,15 @@ int MusicPlayer::chooseFunction()
 		cout << "请输入你想选择的功能：";
 		Sleep(500);
 	} while (!_kbhit());
+
+	size_t n = 0;
 	cin >> n;
 	switch (n)
 	{
 	case 0:cout << "已退出播放！" << endl; Sleep(1000); return 0;
-	case 1:pauseMusic(); break;
-	case 2:playMusic(); break;
-	case 3: {size_t vol = 0;
-		cout << "当前音量：" << vole << endl;
-		cout << "请输入音量值（0-1000）：";
-		cin >> vol;
-		if (vol <= 1000)
-			setMusicVolume(vol); break; }
+	case 1:musicData.pauseMusic(); break;
+	case 2:musicData.playMusic(); break;
+	case 3:setMusicVolume(); break;
 	case 4:deleteMusic(); break;
 	case 5:chooseMusicPlay(); break;
 	case 6:setPlayMode(); break;

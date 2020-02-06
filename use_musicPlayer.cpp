@@ -3,9 +3,6 @@
 int main()
 {
 	MusicPlayer mp0;
-	mp0.chooseMusicPlay();									// —°‘Ò≤¢≤•∑≈“Ù¿÷
-	do
-	{
-	} while (mp0.chooseFunction());
+	while (mp0.chooseFunction());
 	return 0;
 }
