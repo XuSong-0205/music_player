@@ -473,15 +473,15 @@ MusicData::~MusicData()
 
 
 /**********************************************************************************************************************
-*  class MusicPlayer                                                                                                  *
+*  class CmdMusicPlayer                                                                                                  *
 **********************************************************************************************************************/
 
 /**************************************************************
-* MusicPlayer private method                                  *
+* CmdMusicPlayer private method                                  *
 **************************************************************/
 
 // 设置光标位置
-void MusicPlayer::pos(short x, short y)noexcept
+void CmdMusicPlayer::pos(short x, short y)noexcept
 {
 	COORD pos{ x,y };
 	HANDLE hOutput = nullptr;
@@ -490,7 +490,7 @@ void MusicPlayer::pos(short x, short y)noexcept
 }
 
 // 设置音乐音量
-void MusicPlayer::setMusicVolume()
+void CmdMusicPlayer::setMusicVolume()
 {
 	size_t vol = 0;
 	cout << "当前音量：" << musicData.volume << endl;
@@ -506,7 +506,7 @@ void MusicPlayer::setMusicVolume()
 }
 
 // 设置搜索路径并写入filePath.ad中
-void MusicPlayer::setFilePath()
+void CmdMusicPlayer::setFilePath()
 {
 	string temp;
 	cout << "当前搜索路径为：" << musicData.filePath << endl;
@@ -553,7 +553,7 @@ void MusicPlayer::setFilePath()
 }
 
 // 设置播放模式
-void MusicPlayer::setPlayMode()
+void CmdMusicPlayer::setPlayMode()
 {
 	size_t cho = 0;
 	cout << "0.单曲循环" << endl;
@@ -574,7 +574,7 @@ void MusicPlayer::setPlayMode()
 }
 
 // 删除音乐
-void MusicPlayer::deleteMusic()
+void CmdMusicPlayer::deleteMusic()
 {
 	system("cls");
 	showMusicName();
@@ -622,7 +622,7 @@ void MusicPlayer::deleteMusic()
 }
 
 // 选择音乐播放
-void MusicPlayer::chooseMusicPlay()
+void CmdMusicPlayer::chooseMusicPlay()
 {
 	system("cls");
 	size_t choose = 0;
@@ -646,7 +646,7 @@ void MusicPlayer::chooseMusicPlay()
 }
 
 // 显示音乐播放列表
-void MusicPlayer::showMusicName()
+void CmdMusicPlayer::showMusicName()
 {
 	if (musicData.musicName.empty())
 	{
@@ -661,7 +661,7 @@ void MusicPlayer::showMusicName()
 }
 
 // 显示播放信息
-void MusicPlayer::showPlayInformation()
+void CmdMusicPlayer::showPlayInformation()
 {
 	int t = 0, t0 = 0;
 	if (musicData.status)
@@ -740,11 +740,11 @@ void MusicPlayer::showPlayInformation()
 
 
 /**************************************************************
-* MusicPlayer public method                                   *
+* CmdMusicPlayer public method                                   *
 **************************************************************/
 
 // 功能选择
-int MusicPlayer::chooseFunction()
+int CmdMusicPlayer::chooseFunction()
 {
 	system("cls");
 	do
@@ -779,4 +779,23 @@ int MusicPlayer::chooseFunction()
 	default:cout << "选择错误！" << endl; break;
 	}
 	return 1;
+}
+
+
+
+/**********************************************************************************************************************
+*  class GuiMusicPlayer                                                                                               *
+**********************************************************************************************************************/
+
+/**************************************************************
+* GuiMusicPlayer public method                                *
+**************************************************************/
+
+GuiMusicPlayer::GuiMusicPlayer()
+{
+
+
+
+
+
 }

@@ -141,10 +141,17 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="musicPlayer.h" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="musicPlayer.cpp" />
     <ClCompile Include="use_musicPlayer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="music_player.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\..\图片\program_icon\i5.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

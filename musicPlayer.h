@@ -55,7 +55,7 @@ public:
  *              class MusicData                 *
  * 数据操作层                                   *
  * 对相应的数据进行操作                         *
- * 并于MusicMCI和MusicPlayer进行交互            *
+ * 并于MusicMCI和CmdMusicPlayer进行交互            *
  ***********************************************/
 
 class MusicData
@@ -93,18 +93,18 @@ public:
 	MusicData();											// 默认构造函数
 	~MusicData();											// 析构函数
 
-	friend class MusicPlayer;
+	friend class CmdMusicPlayer;
 };
 
 
 /************************************************
- *              class MusicPlayer               *
+ *             class CmdMusicPlayer             *
  * 交互层                                       *
  * 与用户进行交互                               *
  * 并将交互结果发送给MusicDate进行处理          *
  ***********************************************/
 
-class MusicPlayer
+class CmdMusicPlayer
 {
 private:
 	MusicData musicData;									// 音乐数据类对象
