@@ -9,25 +9,12 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="资源文件">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="musicPlayer.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="resource1.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="resource2.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="resource3.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -40,13 +27,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="music_player1.rc">
-      <Filter>资源文件</Filter>
-    </ResourceCompile>
+    <Image Include="..\..\..\..\图片\program_icon\i5.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\..\..\..\图片\program_icon\i5.ico">
-      <Filter>资源文件</Filter>
-    </Image>
+    <ResourceCompile Include="music_player.rc" />
   </ItemGroup>
 </Project>

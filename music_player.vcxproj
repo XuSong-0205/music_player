@@ -142,16 +142,13 @@
   <ItemGroup>
     <ClInclude Include="musicPlayer.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="resource1.h" />
-    <ClInclude Include="resource2.h" />
-    <ClInclude Include="resource3.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="musicPlayer.cpp" />
     <ClCompile Include="use_musicPlayer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="music_player1.rc" />
+    <ResourceCompile Include="music_player.rc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\..\..\图片\program_icon\i5.ico" />
