@@ -123,8 +123,19 @@ public:
 
 
 /************************************************
- *              class MusicPlayer               *
+ *              class GuiMusicPlayer            *
  * 交互层                                       *
  * 与用户进行交互                               *
  * 并将交互结果发送给MusicDate进行处理          *
  ***********************************************/
+
+//class GuiMusicPlayer
+//{
+//private:
+//	MusicData musicData;
+//
+//
+//public:
+//	GuiMusicPlayer();
+//
+//};
