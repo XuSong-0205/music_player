@@ -3,6 +3,7 @@
 #include<fstream>
 #include<string>
 #include<vector>
+#include<array>
 #include<algorithm>
 #include<ctime>
 #include<cstdlib>
@@ -16,11 +17,13 @@
 
 using std::cin;
 using std::cout;
+using std::wcout;
 using std::cerr;
 using std::endl;
 using std::string;
 using std::wstring;
 using std::vector;
+using std::array;
 using std::fstream;
 using std::ios_base;
 
@@ -63,9 +66,9 @@ class MusicData
 private:
 	string filePath;										// 要查找的文件路径
 	string musicFormat = "mp3";								// 要查找的文件格式
-	string nowMusicName;									// 正在操作的音乐名
+	wstring nowMusicName;									// 正在操作的音乐名
 	vector<string> musicPathName;							// 存储全路径音乐文件名
-	vector<string> musicName;								// 存储音乐文件名
+	vector<wstring> musicName;								// 存储音乐文件名
 	MusicMCI musicMci;										// 执行音乐播放操作的对象
 	size_t status = 0;										// 播放状态 0未播放 1正在播放 2暂停播放 3播放完毕
 	size_t volume = 500;									// 当前音量大小
@@ -94,6 +97,7 @@ public:
 	~MusicData();											// 析构函数
 
 	friend class CmdMusicPlayer;
+	friend class GuiMusicPlayer;
 };
 
 
@@ -133,9 +137,20 @@ class GuiMusicPlayer
 {
 private:
 	MusicData musicData;
+	IMAGE img;
+	array<int, 2> numRange{ 0,0 };							// 播放列表显示的音乐范围 numRange[0]指向显示在音乐列表musicData.musicName的开始
+															// numRange[1]指向musicData.musicName在播放列表的最后一个
+	static const int WIDTH = 960;
+	static const int HEIGHT = 640;
 
 
+	bool findBgPicture()noexcept;							// 查找是否存在背景图片
+	void ui();
+	void drawStartPause();
+	void showPlayList();
 public:
 	GuiMusicPlayer();
+	~GuiMusicPlayer();
 
+	void choose();
 };

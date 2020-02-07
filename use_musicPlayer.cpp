@@ -2,7 +2,7 @@
 
 int main()
 {
-	CmdMusicPlayer mp0;
-	while (mp0.chooseFunction());
+	GuiMusicPlayer gmp0;
+	gmp0.choose();
 	return 0;
 }

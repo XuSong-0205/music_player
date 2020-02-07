@@ -1,16 +1,20 @@
-#include"musicPlayer.h"
+ï»¿#include"musicPlayer.h"
 
 /**************************************************************************************************************
-*  MusiMusicMCI method                                                                                        *
-***************************************************************************************************************/
+*  class MusicMCI                                                                                             *
+**************************************************************************************************************/
+
+/**************************************************************
+* MusicMci public method                                      *
+**************************************************************/
 
 MusicMCI::MusicMCI()noexcept
 {
 	nDeviceID = -1;
 }
 
-// ´ò¿ªÎÄ¼ş
-// ³É¹¦·µ»Ø·ÇÁãÖµ£¬Ê§°Ü·µ»Ø0
+// æ‰“å¼€æ–‡ä»¶
+// æˆåŠŸè¿”å›éé›¶å€¼ï¼Œå¤±è´¥è¿”å›0
 BOOL MusicMCI::open(LPCWSTR strSongPath)noexcept
 {
 	MCI_OPEN_PARMS mciOP;
@@ -31,8 +35,8 @@ BOOL MusicMCI::open(LPCWSTR strSongPath)noexcept
 	}
 }
 
-// ²¥·Å
-// ³É¹¦·µ»Ø·ÇÁãÖµ£¬Ê§°Ü·µ»Ø0
+// æ’­æ”¾
+// æˆåŠŸè¿”å›éé›¶å€¼ï¼Œå¤±è´¥è¿”å›0
 BOOL MusicMCI::play()noexcept
 {
 	MCI_PLAY_PARMS mciPP{};
@@ -45,8 +49,8 @@ BOOL MusicMCI::play()noexcept
 		return FALSE;
 }
 
-// ÔİÍ£²¥·Å
-// ³É¹¦·µ»Ø·ÇÁãÖµ£¬Ê§°Ü·µ»Ø0
+// æš‚åœæ’­æ”¾
+// æˆåŠŸè¿”å›éé›¶å€¼ï¼Œå¤±è´¥è¿”å›0
 BOOL MusicMCI::pause()noexcept
 {
 	MCI_GENERIC_PARMS mciGP{};
@@ -59,8 +63,8 @@ BOOL MusicMCI::pause()noexcept
 		return FALSE;
 }
 
-// Í£Ö¹²¥·Å²¢Ê¹½ø¶È·µ»Øµ½¿ªÍ·
-// ³É¹¦·µ»Ø·ÇÁãÖµ£¬Ê§°Ü·µ»Ø0
+// åœæ­¢æ’­æ”¾å¹¶ä½¿è¿›åº¦è¿”å›åˆ°å¼€å¤´
+// æˆåŠŸè¿”å›éé›¶å€¼ï¼Œå¤±è´¥è¿”å›0
 BOOL MusicMCI::stop()noexcept
 {
 	MCI_SEEK_PARMS mciSP{};
@@ -73,8 +77,8 @@ BOOL MusicMCI::stop()noexcept
 		return FALSE;
 }
 
-// ¹Ø±ÕMCIÉè±¸
-// ³É¹¦·µ»Ø·ÇÁãÖµ£¬Ê§°Ü·µ»Ø0
+// å…³é—­MCIè®¾å¤‡
+// æˆåŠŸè¿”å›éé›¶å€¼ï¼Œå¤±è´¥è¿”å›0
 BOOL MusicMCI::close()noexcept
 {
 	MCI_GENERIC_PARMS mciGP{};
@@ -87,8 +91,8 @@ BOOL MusicMCI::close()noexcept
 		return FALSE;
 }
 
-// »ñµÃµ±Ç°²¥·Å½ø¶È£¬posÒÔmsÎªµ¥Î»
-// ³É¹¦·µ»Ø·ÇÁãÖµ£¬Ê§°Ü·µ»Ø0
+// è·å¾—å½“å‰æ’­æ”¾è¿›åº¦ï¼Œposä»¥msä¸ºå•ä½
+// æˆåŠŸè¿”å›éé›¶å€¼ï¼Œå¤±è´¥è¿”å›0
 BOOL MusicMCI::getPlayBackTime(DWORD& pos)noexcept
 {
 	MCI_STATUS_PARMS mciSP{};
@@ -108,15 +112,15 @@ BOOL MusicMCI::getPlayBackTime(DWORD& pos)noexcept
 	}
 }
 
-// »ñÈ¡ÒôÀÖ×ÜÊ±³¤£¬timeÒÔmsÎªµ¥Î»
-// ³É¹¦·µ»ØTRUE£¬Ê§°Ü·µ»ØFALSE
+// è·å–éŸ³ä¹æ€»æ—¶é•¿ï¼Œtimeä»¥msä¸ºå•ä½
+// æˆåŠŸè¿”å›TRUEï¼Œå¤±è´¥è¿”å›FALSE
 BOOL MusicMCI::getMusicTime(DWORD& time)noexcept
 {
 	MCI_STATUS_PARMS mciSP{};
 
 	mciSP.dwItem = MCI_STATUS_LENGTH;
 	const DWORD dwReturn = mciSendCommand(nDeviceID, MCI_STATUS,
-		MCI_WAIT | MCI_STATUS_ITEM, (DWORD)static_cast<LPVOID>(&mciSP));		// ¹Ø¼ü,È¡µÃ³¤¶È
+		MCI_WAIT | MCI_STATUS_ITEM, (DWORD)static_cast<LPVOID>(&mciSP));		// å…³é”®,å–å¾—é•¿åº¦
 	if (dwReturn == 0)
 	{
 		time = mciSP.dwReturn;
@@ -129,8 +133,8 @@ BOOL MusicMCI::getMusicTime(DWORD& time)noexcept
 	}
 }
 
-// ÒôÁ¿Éè¶¨£¬ÒôÁ¿Öµ·¶Î§ÔÚ0µ½1000
-// ³É¹¦·µ»Ø·ÇÁãÖµ£¬Ê§°Ü·µ»Ø0
+// éŸ³é‡è®¾å®šï¼ŒéŸ³é‡å€¼èŒƒå›´åœ¨0åˆ°1000
+// æˆåŠŸè¿”å›éé›¶å€¼ï¼Œå¤±è´¥è¿”å›0
 BOOL MusicMCI::setVolume(size_t nVolumeValue)noexcept
 {
 	if (nVolumeValue > 1000)
@@ -156,92 +160,93 @@ BOOL MusicMCI::setVolume(size_t nVolumeValue)noexcept
 
 
 /**************************************************************************************************************
-* MusicData method                                                                                          *
+*  class MusicData                                                                                            *
 **************************************************************************************************************/
 
 /**************************************************************
 * MusicData private method                                    *
 **************************************************************/
 
-// ´ò¿ª²¢²¥·ÅÒôÀÖ
+// æ‰“å¼€å¹¶æ’­æ”¾éŸ³ä¹
 void MusicData::openMusic(size_t num)
 {
 	if (num >= musicPathName.size())
 	{
-		cout << "²ÎÊı²»·ûºÏÒªÇó£¬ÇëÖØÊÔ£¡" << endl;
+		cout << "å‚æ•°ä¸ç¬¦åˆè¦æ±‚ï¼Œè¯·é‡è¯•ï¼" << endl;
 		status = 0;
 		return;
 	}
 
 	wstring musci_name = stringTowstring(musicPathName.at(num));
-	nowMusicName.assign(musicName.at(num));							// ÉèÖÃÕıÔÚ²Ù×÷µÄÒôÀÖÃû
-	number = num;													// ÉèÖÃÕıÔÚ²Ù×÷µÄÒôÀÖÃû±àºÅ
+	nowMusicName.assign(musicName.at(num));							// è®¾ç½®æ­£åœ¨æ“ä½œçš„éŸ³ä¹å
+	number = num;													// è®¾ç½®æ­£åœ¨æ“ä½œçš„éŸ³ä¹åç¼–å·
 	if (musicMci.open(musci_name.c_str()))
 	{
-		cout << "ÒôÀÖ´ò¿ª³É¹¦£¡" << endl;
+		cout << "éŸ³ä¹æ‰“å¼€æˆåŠŸï¼" << endl;
 
 		playMusic();
 		musicMci.setVolume(volume);
 	}
 	else
-		cout << "ÒôÀÖ´ò¿ªÊ§°Ü£¬ÇëÉÔºóÖØÊÔ£¡" << endl;
+		cout << "éŸ³ä¹æ‰“å¼€å¤±è´¥ï¼Œè¯·ç¨åé‡è¯•ï¼" << endl;
 }
 
-// ²¥·ÅÒôÀÖ
+// æ’­æ”¾éŸ³ä¹
 void MusicData::playMusic()
 {
 	if (musicMci.play())
 	{
-		cout << "ÒôÀÖ" << nowMusicName << "²¥·Å³É¹¦£¡" << endl;
 		status = 1;
 	}
 	else
 	{
-		cout << "ÒôÀÖ" << nowMusicName << "²¥·ÅÊ§°Ü£¡" << endl;
+		cout << "éŸ³ä¹";
+		wcout << nowMusicName;
+		cout << "æ’­æ”¾å¤±è´¥ï¼" << endl;
 		status = 0;
 	}
 }
 
-// ÔİÍ£²¥·Å
+// æš‚åœæ’­æ”¾
 void MusicData::pauseMusic()
 {
 	if (status)
 	{
 		if (musicMci.pause())
 		{
-			cout << "ÒôÀÖÒÑÔİÍ££¡" << endl;
+			cout << "éŸ³ä¹å·²æš‚åœï¼" << endl;
 			status = 2;
 		}
 		else
-			cout << "ÒôÀÖÔİÍ£Ê§°Ü£¡" << endl;
+			cout << "éŸ³ä¹æš‚åœå¤±è´¥ï¼" << endl;
 	}
 }
 
-// Í£Ö¹²¥·Å
+// åœæ­¢æ’­æ”¾
 void MusicData::stopMusic()
 {
 	if (musicMci.stop())
 	{
-		cout << "ÒôÀÖÒÑÍ£Ö¹£¡" << endl;
+		cout << "éŸ³ä¹å·²åœæ­¢ï¼" << endl;
 		status = 0;
 	}
 	else
-		cout << "ÒôÀÖÍ£Ö¹Ê§°Ü£¡" << endl;
+		cout << "éŸ³ä¹åœæ­¢å¤±è´¥ï¼" << endl;
 }
 
-// ¹Ø±ÕÒôÀÖ
+// å…³é—­éŸ³ä¹
 void MusicData::closeMusic()
 {
 	if (musicMci.close())
 	{
-		cout << "ÒôÀÖÒÑ¹Ø±Õ£¡" << endl;
+		cout << "éŸ³ä¹å·²å…³é—­ï¼" << endl;
 		status = 0;
 	}
 	else
-		cout << "ÒôÀÖ¹Ø±ÕÊ§°Ü£¡" << endl;
+		cout << "éŸ³ä¹å…³é—­å¤±è´¥ï¼" << endl;
 }
 
-// »ñÈ¡ÒôÀÖµ±Ç°²¥·ÅÊ±¼ä
+// è·å–éŸ³ä¹å½“å‰æ’­æ”¾æ—¶é—´
 int MusicData::getPlayerBackTimeMusic()
 {
 	if (status)
@@ -249,14 +254,14 @@ int MusicData::getPlayerBackTimeMusic()
 		DWORD playTime = 0;
 		if (!musicMci.getPlayBackTime(playTime))
 		{
-			cout << "»ñÈ¡²¥·ÅÊ±³¤Ê§°Ü£¡" << endl;
+			cout << "è·å–æ’­æ”¾æ—¶é•¿å¤±è´¥ï¼" << endl;
 			return 0;
 		}
 		return playTime / 1000;
 	}
 }
 
-// »ñÈ¡ÒôÀÖ×Ü²¥·ÅÊ±¼ä
+// è·å–éŸ³ä¹æ€»æ’­æ”¾æ—¶é—´
 int MusicData::getTotalTime()
 {
 	if (status)
@@ -264,7 +269,7 @@ int MusicData::getTotalTime()
 		DWORD totalTime = 0;
 		if (!musicMci.getMusicTime(totalTime))
 		{
-			cout << "»ñÈ¡×ÜÊ±³¤Ê§°Ü£¡" << endl;
+			cout << "è·å–æ€»æ—¶é•¿å¤±è´¥ï¼" << endl;
 			return 0;
 		}
 		return totalTime / 1000;
@@ -272,38 +277,38 @@ int MusicData::getTotalTime()
 }
 
 
-// string×ªwstring
+// stringè½¬wstring
 wstring MusicData::stringTowstring(const string& str)
 {
 	wstring result;
-	// »ñÈ¡»º³åÇø´óĞ¡£¬²¢ÉêÇë¿Õ¼ä£¬»º³åÇø´óĞ¡°´×Ö·û¼ÆËã
+	// è·å–ç¼“å†²åŒºå¤§å°ï¼Œå¹¶ç”³è¯·ç©ºé—´ï¼Œç¼“å†²åŒºå¤§å°æŒ‰å­—ç¬¦è®¡ç®—
 	const size_t len = MultiByteToWideChar(CP_ACP, 0, str.c_str(), str.size(), nullptr, 0);
 	vector<TCHAR> buffer(len + 1u);
-	// ¶à×Ö½Ú±àÂë×ª»»³É¿í×Ö½Ú±àÂë
+	// å¤šå­—èŠ‚ç¼–ç è½¬æ¢æˆå®½å­—èŠ‚ç¼–ç 
 	MultiByteToWideChar(CP_ACP, 0, str.c_str(), str.size(), &buffer.at(0), len);
-	buffer.at(len) = '\0';			// Ìí¼Ó×Ö·û´®½áÎ²
+	buffer.at(len) = '\0';			// æ·»åŠ å­—ç¬¦ä¸²ç»“å°¾
 	result.append(&buffer.at(0));
 	return result;
 }
 
-// ´ÓÎÄ¼şfilePath.adÖĞ¶ÁÈ¡ËÑË÷Â·¾¶
+// ä»æ–‡ä»¶filePath.adä¸­è¯»å–æœç´¢è·¯å¾„
 void MusicData::getFilePath()
 {
 	fstream fPath("filePath.ad", ios_base::in);
 	if (!fPath.is_open())
 	{
-		cerr << "ÎÄ¼şfilePath.ad´ò¿ªÊ§°Ü£¬´ËÎÄ¼ş¿ÉÄÜ²»´æÔÚ£¡" << endl;
-		cerr << "³ÌĞò½«³¢ÊÔĞÂ½¨´ËÎÄ¼ş!" << endl;
+		cerr << "æ–‡ä»¶filePath.adæ‰“å¼€å¤±è´¥ï¼Œæ­¤æ–‡ä»¶å¯èƒ½ä¸å­˜åœ¨ï¼" << endl;
+		cerr << "ç¨‹åºå°†å°è¯•æ–°å»ºæ­¤æ–‡ä»¶!" << endl;
 
 		fPath.open("filePath.ad", ios_base::in | ios_base::out | ios_base::trunc);
 		if (!fPath.is_open())
 		{
-			cerr << "ÎÄ¼şfilePath.ad´´½¨Ê§°Ü£¡£¬³ÌĞò¿ÉÄÜÓöµ½ÁËÒ»Ğ©ÎÊÌâ£¡" << endl;
-			cerr << "ÇëÉÔºóÖØÊÔ£¡" << endl;
+			cerr << "æ–‡ä»¶filePath.adåˆ›å»ºå¤±è´¥ï¼ï¼Œç¨‹åºå¯èƒ½é‡åˆ°äº†ä¸€äº›é—®é¢˜ï¼" << endl;
+			cerr << "è¯·ç¨åé‡è¯•ï¼" << endl;
 		}
 		else
 		{
-			cout << "ÎÄ¼şfilePath.ad´´½¨³É¹¦£¡" << endl;
+			cout << "æ–‡ä»¶filePath.adåˆ›å»ºæˆåŠŸï¼" << endl;
 		}
 	}
 	else
@@ -312,21 +317,21 @@ void MusicData::getFilePath()
 	}
 }
 
-// »ñÈ¡ÌØ¶¨¸ñÊ½µÄÎÄ¼şÃû    
+// è·å–ç‰¹å®šæ ¼å¼çš„æ–‡ä»¶å    
 void MusicData::findMusicName(const string& path)
 {
-	long  hFile = 0;																					// ÎÄ¼ş¾ä±ú  64Î»ÏÂlong ¸ÄÎª intptr_t
-	struct _finddata_t fileinfo;																		//	ÎÄ¼şĞÅÏ¢ 
+	long  hFile = 0;																					// æ–‡ä»¶å¥æŸ„  64ä½ä¸‹long æ”¹ä¸º intptr_t
+	struct _finddata_t fileinfo;																		//	æ–‡ä»¶ä¿¡æ¯ 
 	string p;
-	if ((hFile = _findfirst(p.assign(path).append("\\*").c_str(), &fileinfo)) != -1)					// ²éÕÒËùÓĞÎÄ¼ş
+	if ((hFile = _findfirst(p.assign(path).append("\\*").c_str(), &fileinfo)) != -1)					// æŸ¥æ‰¾æ‰€æœ‰æ–‡ä»¶
 	{
 		do
 		{
-			if ((fileinfo.attrib & _A_SUBDIR))															// ÅĞ¶ÏÊÇ·ñÎªÎÄ¼ş¼Ğ
+			if ((fileinfo.attrib & _A_SUBDIR))															// åˆ¤æ–­æ˜¯å¦ä¸ºæ–‡ä»¶å¤¹
 			{
-				if (strcmp(&fileinfo.name[0], ".") != 0 && strcmp(&fileinfo.name[0], "..") != 0)		// ÎÄ¼ş¼ĞÃûÖĞ²»º¬"."ºÍ".."
+				if (strcmp(&fileinfo.name[0], ".") != 0 && strcmp(&fileinfo.name[0], "..") != 0)		// æ–‡ä»¶å¤¹åä¸­ä¸å«"."å’Œ".."
 				{
-					findMusicName(p.assign(path).append("\\").append(&fileinfo.name[0]));				// µİ¹é±éÀúÎÄ¼ş¼Ğ
+					findMusicName(p.assign(path).append("\\").append(&fileinfo.name[0]));				// é€’å½’éå†æ–‡ä»¶å¤¹
 				}
 			}
 			else
@@ -336,10 +341,11 @@ void MusicData::findMusicName(const string& path)
 					suffix = suffix.substr(suffix.size() - musicFormat.size());
 				if (suffix == musicFormat)
 				{
-					musicPathName.push_back(p.assign(path).append("\\").append(&fileinfo.name[0]));				// ÊÇ¸Ä¸ïÊÇÎÄ¼ş£¬´¢´æÎÄ¼şÃû
+					musicPathName.push_back(p.assign(path).append("\\").append(&fileinfo.name[0]));		// æ˜¯æ–‡ä»¶ï¼Œå‚¨å­˜æ–‡ä»¶å
 
 					string temp(&fileinfo.name[0]);
-					musicName.push_back(temp.substr(0, temp.size() - musicFormat.size() - 1));					// ½ØÈ¡³öÒôÀÖÃû
+					temp.assign(temp.substr(0, temp.size() - musicFormat.size() - 1));					// æˆªå–å‡ºéŸ³ä¹å
+					musicName.push_back(stringTowstring(temp));											// å†™å…¥
 				}
 			}
 		} while (_findnext(hFile, &fileinfo) == 0);
@@ -347,37 +353,37 @@ void MusicData::findMusicName(const string& path)
 	}
 }
 
-// ½«filePathĞ´ÈëÎÄ¼şfilePath.ad
+// å°†filePathå†™å…¥æ–‡ä»¶filePath.ad
 void MusicData::wFilePath(fstream& file)
 {
 	file << filePath << endl;
 }
 
-// ½«ÎÄ¼şfilePath.ad¶ÁÈ¡µ½filePath
+// å°†æ–‡ä»¶filePath.adè¯»å–åˆ°filePath
 void MusicData::rFilePath(fstream& file)
 {
 	string temp;
 	getline(file, temp);
 	if (temp.empty() || temp.at(0) == '\n')
 	{
-		cout << "ÎÄ¼şÄÚÈİÎª¿Õ£¡" << endl;
-		cout << "ÎÄ¼şÂ·¾¶ÉèÖÃÎªÄ¬ÈÏ£¡" << endl;
+		cout << "æ–‡ä»¶å†…å®¹ä¸ºç©ºï¼" << endl;
+		cout << "æ–‡ä»¶è·¯å¾„è®¾ç½®ä¸ºé»˜è®¤ï¼" << endl;
 	}
 	else
 		filePath = std::move(temp);
 }
 
 
-// ½«musicPathNameĞ´ÈëÎÄ¼şmusic.mnÖĞ
+// å°†musicPathNameå†™å…¥æ–‡ä»¶music.mnä¸­
 void MusicData::wFileMusic(fstream& file)
 {
 	if (!musicPathName.empty())
 		for (auto& x : musicPathName)
 			file << x << endl;
-	cout << "ÎÄ¼şmusic.mnĞ´ÈëÍê±Ï£¡" << endl;
+	cout << "æ–‡ä»¶music.mnå†™å…¥å®Œæ¯•ï¼" << endl;
 }
 
-// ´Ómusic.mn¶ÁÈ¡µ½musicPathNameºÍmusicNameÖĞ
+// ä»music.mnè¯»å–åˆ°musicPathNameå’ŒmusicNameä¸­
 void MusicData::rFileMusic(fstream& file)
 {
 	string s;
@@ -385,14 +391,15 @@ void MusicData::rFileMusic(fstream& file)
 	{
 		getline(file, s);
 		musicPathName.push_back(s);
+		s.assign(s.substr(s.rfind("\\") + 1, s.size() - s.rfind("\\") - 1 - musicFormat.size() - 1));	// æˆªå–å‡ºéŸ³ä¹å
 
-		musicName.push_back(s.substr(s.rfind("\\") + 1, s.size() - s.rfind("\\") - 1 - musicFormat.size() - 1));									// ½ØÈ¡³öÒôÀÖÃû			// ½ØÈ¡³öÒôÀÖÃû
+		musicName.push_back(stringTowstring(s));														// å†™å…¥
 
 	} while (!file.eof());
-	cout << "ÎÄ¼şmusci.mn¶ÁÈ¡Íê±Ï£¡" << endl;
+	cout << "æ–‡ä»¶musci.mnè¯»å–å®Œæ¯•ï¼" << endl;
 }
 
-// ÉèÖÃÒôÀÖÒôÁ¿
+// è®¾ç½®éŸ³ä¹éŸ³é‡
 void MusicData::setMusicVolume(size_t vol)
 {
 	if (status)
@@ -400,7 +407,7 @@ void MusicData::setMusicVolume(size_t vol)
 		if (musicMci.setVolume(vol))
 			volume = vol;
 		else
-			cout << "ÒôÁ¿ÉèÖÃÊ§°Ü£¡" << endl;
+			cout << "éŸ³é‡è®¾ç½®å¤±è´¥ï¼" << endl;
 	}
 	else
 	{
@@ -408,15 +415,15 @@ void MusicData::setMusicVolume(size_t vol)
 	}
 }
 
-// É¾³ı¸èÇú
+// åˆ é™¤æ­Œæ›²
 void MusicData::deleteMusicData(vector<int>& vec)		
 {
-	sort(vec.begin(), vec.end());										// ¶ÔÆä½øĞĞÅÅĞò£¬·½±ãÏÂÃæĞŞÕı
+	sort(vec.begin(), vec.end());										// å¯¹å…¶è¿›è¡Œæ’åºï¼Œæ–¹ä¾¿ä¸‹é¢ä¿®æ­£
 	for (decltype(vec.size()) i = 0; i < vec.size(); ++i)
 	{
-		vec.at(i) -= i;													// ĞŞÕıÒªÉ¾³ıµÄÏÂ±êĞÅÏ¢
+		vec.at(i) -= i;													// ä¿®æ­£è¦åˆ é™¤çš„ä¸‹æ ‡ä¿¡æ¯
 
-		musicName.erase(musicName.begin() + vec.at(i));					// É¾³ı¶ÔÓ¦ÏÂ±êµÄÊı¾İ
+		musicName.erase(musicName.begin() + vec.at(i));					// åˆ é™¤å¯¹åº”ä¸‹æ ‡çš„æ•°æ®
 		musicPathName.erase(musicPathName.begin() + vec.at(i));
 	}
 }
@@ -425,46 +432,46 @@ void MusicData::deleteMusicData(vector<int>& vec)
 *  MusicData public method                                    *
 **************************************************************/
 
-// Ä¬ÈÏ¹¹Ôìº¯Êı
+// é»˜è®¤æ„é€ å‡½æ•°
 MusicData::MusicData()
 {
 	srand(time(nullptr) & 0xffffffff);
-	getFilePath();																// ³õÊ¼»¯ËÑË÷µÄÎÄ¼şÂ·¾¶
+	getFilePath();																// åˆå§‹åŒ–æœç´¢çš„æ–‡ä»¶è·¯å¾„
 
-	cout << "ÎÄ¼şËÑË÷Â·¾¶Îª£º" << filePath << endl;
+	cout << "æ–‡ä»¶æœç´¢è·¯å¾„ä¸ºï¼š" << filePath << endl;
 	fstream file("music.mn", ios_base::in);
 	if (!file.is_open())
 	{
-		cerr << "ÎÄ¼şmusic.mn´ò¿ªÊ§°Ü£¬´ËÎÄ¼ş¿ÉÄÜ²»´æÔÚ" << endl;
-		cerr << "³ÌĞò½«³¢ÊÔĞÂ½¨´ËÎÄ¼ş£¬²¢³õÊ¼»¯ÎÄ¼şÄÚÈİ" << endl;
+		cerr << "æ–‡ä»¶music.mnæ‰“å¼€å¤±è´¥ï¼Œæ­¤æ–‡ä»¶å¯èƒ½ä¸å­˜åœ¨" << endl;
+		cerr << "ç¨‹åºå°†å°è¯•æ–°å»ºæ­¤æ–‡ä»¶ï¼Œå¹¶åˆå§‹åŒ–æ–‡ä»¶å†…å®¹" << endl;
 
 		file.open("music.mn", ios_base::out);
 		if (!file.is_open())
 		{
-			cerr << "ÎÄ¼şmusic.mn´´½¨Ê§°Ü£¡" << endl;
-			cerr << "³ÌĞò¿ÉÄÜÓöµ½ÁËÒ»Ğ©ÎÊÌâ£¡" << endl;
-			cerr << "³ÌĞò¼´½«ÍË³ö£¡" << endl;
+			cerr << "æ–‡ä»¶music.mnåˆ›å»ºå¤±è´¥ï¼" << endl;
+			cerr << "ç¨‹åºå¯èƒ½é‡åˆ°äº†ä¸€äº›é—®é¢˜ï¼" << endl;
+			cerr << "ç¨‹åºå³å°†é€€å‡ºï¼" << endl;
 			system("pause");
 			exit(0);
 		}
 
-		cout << "ÎÄ¼şmusic.mn´´½¨³É¹¦£¡" << endl;
+		cout << "æ–‡ä»¶music.mnåˆ›å»ºæˆåŠŸï¼" << endl;
 		findMusicName(filePath);
 		wFileMusic(file);
 	}
 
 	rFileMusic(file);
 	file.close();
-	nowMusicName = "";
+	nowMusicName = L"";
 
 	if (!musicPathName.empty())
-		musicPathName.pop_back();																		// É¾³ı×îºóÒ»¸ö¿Õ°×ĞĞ
+		musicPathName.pop_back();																		// åˆ é™¤æœ€åä¸€ä¸ªç©ºç™½è¡Œ
 
 	if (!musicName.empty())
 		musicName.pop_back();
 }
 
-// Îö¹¹º¯Êı
+// ææ„å‡½æ•°
 MusicData::~MusicData()
 {
 	closeMusic();
@@ -473,14 +480,14 @@ MusicData::~MusicData()
 
 
 /**********************************************************************************************************************
-*  class CmdMusicPlayer                                                                                                  *
+*  class CmdMusicPlayer                                                                                               *
 **********************************************************************************************************************/
 
 /**************************************************************
-* CmdMusicPlayer private method                                  *
+* CmdMusicPlayer private method                               *
 **************************************************************/
 
-// ÉèÖÃ¹â±êÎ»ÖÃ
+// è®¾ç½®å…‰æ ‡ä½ç½®
 void CmdMusicPlayer::pos(short x, short y)noexcept
 {
 	COORD pos{ x,y };
@@ -489,31 +496,31 @@ void CmdMusicPlayer::pos(short x, short y)noexcept
 	SetConsoleCursorPosition(hOutput, pos);
 }
 
-// ÉèÖÃÒôÀÖÒôÁ¿
+// è®¾ç½®éŸ³ä¹éŸ³é‡
 void CmdMusicPlayer::setMusicVolume()
 {
 	size_t vol = 0;
-	cout << "µ±Ç°ÒôÁ¿£º" << musicData.volume << endl;
-	cout << "ÇëÊäÈëÒôÁ¿Öµ£¨0-1000£©£º";
+	cout << "å½“å‰éŸ³é‡ï¼š" << musicData.volume << endl;
+	cout << "è¯·è¾“å…¥éŸ³é‡å€¼ï¼ˆ0-1000ï¼‰ï¼š";
 	cin >> vol;
 	if (vol <= 1000)
 		musicData.setMusicVolume(vol);
 	else
 	{
-		cout << "ÊäÈë´íÎó£¡" << endl;
+		cout << "è¾“å…¥é”™è¯¯ï¼" << endl;
 		Sleep(1000);
 	}
 }
 
-// ÉèÖÃËÑË÷Â·¾¶²¢Ğ´ÈëfilePath.adÖĞ
+// è®¾ç½®æœç´¢è·¯å¾„å¹¶å†™å…¥filePath.adä¸­
 void CmdMusicPlayer::setFilePath()
 {
 	string temp;
-	cout << "µ±Ç°ËÑË÷Â·¾¶Îª£º" << musicData.filePath << endl;
-	cout << "ÇëÊäÈëĞÂµÄËÑË÷Â·¾¶(ÇëÊäÈë¾ø¶ÔÂ·¾¶£¡)£º";
+	cout << "å½“å‰æœç´¢è·¯å¾„ä¸ºï¼š" << musicData.filePath << endl;
+	cout << "è¯·è¾“å…¥æ–°çš„æœç´¢è·¯å¾„(è¯·è¾“å…¥ç»å¯¹è·¯å¾„ï¼)ï¼š";
 	cin >> temp;
-	cout << "ĞÂµÄËÑË÷Â·¾¶Îª£º" << temp << endl;
-	cout << "ÊÇ·ñĞŞ¸Ä£¿£¨y/n£©:";
+	cout << "æ–°çš„æœç´¢è·¯å¾„ä¸ºï¼š" << temp << endl;
+	cout << "æ˜¯å¦ä¿®æ”¹ï¼Ÿï¼ˆy/nï¼‰:";
 	char ch = 0;
 	cin >> ch;
 	if ('y' == ch || 'Y' == ch)
@@ -522,113 +529,116 @@ void CmdMusicPlayer::setFilePath()
 		fstream fp("filePath.ad", ios_base::out);
 		if (!fp.is_open())
 		{
-			cerr << "ÎÄ¼şfilePath.ad´ò¿ªÊ§°Ü£¬ÇëÉÔºóÖØÊÔ£¡" << endl;
+			cerr << "æ–‡ä»¶filePath.adæ‰“å¼€å¤±è´¥ï¼Œè¯·ç¨åé‡è¯•ï¼" << endl;
 		}
 		else
 		{
 			musicData.wFilePath(fp);										
 			fp.close();
-			cout << "ËÑË÷Â·¾¶Ğ´ÈëÍê±Ï£¡" << endl;
+			cout << "æœç´¢è·¯å¾„å†™å…¥å®Œæ¯•ï¼" << endl;
 
-			musicData.findMusicName(musicData.filePath);					// Ñ°ÕÒÒôÀÖÎÄ¼ş
-			fstream file("music.mn", ios_base::out);						// ½Ø¶Ï´ò¿ª£¬ÖØĞÂĞ´Èë
+			musicData.findMusicName(musicData.filePath);					// å¯»æ‰¾éŸ³ä¹æ–‡ä»¶
+			fstream file("music.mn", ios_base::out);						// æˆªæ–­æ‰“å¼€ï¼Œé‡æ–°å†™å…¥
 			if (!file.is_open())
 			{
-				cerr << "ÎÄ¼şmusic.mn´ò¿ªÊ§°Ü£¬ÇëÉÔºóÖØÊÔ´Ë¹¦ÄÜ£¡" << endl;
+				cerr << "æ–‡ä»¶music.mnæ‰“å¼€å¤±è´¥ï¼Œè¯·ç¨åé‡è¯•æ­¤åŠŸèƒ½ï¼" << endl;
 				Sleep(1000);
 			}
 			else
 			{
-				musicData.wFileMusic(file);									// Ğ´ÈëÒôÀÖÈ«Â·¾¶Ãû
+				musicData.wFileMusic(file);									// å†™å…¥éŸ³ä¹å…¨è·¯å¾„å
 				file.close();
-				cout << "Ğ´ÈëĞÂ¸èÇúÃû³É¹¦£¡" << endl;
+				cout << "å†™å…¥æ–°æ­Œæ›²åæˆåŠŸï¼" << endl;
 			}
-			cout << "ÒÔËÑË÷Íê±ÏĞÂÂ·¾¶ÏÂµÄ¸èÇú£¡" << endl;
+			cout << "ä»¥æœç´¢å®Œæ¯•æ–°è·¯å¾„ä¸‹çš„æ­Œæ›²ï¼" << endl;
 		}
 	}
 	else
 	{
-		cout << "ÒÑÈ¡ÏûĞŞ¸Ä£¡" << endl;
+		cout << "å·²å–æ¶ˆä¿®æ”¹ï¼" << endl;
 	}
 }
 
-// ÉèÖÃ²¥·ÅÄ£Ê½
+// è®¾ç½®æ’­æ”¾æ¨¡å¼
 void CmdMusicPlayer::setPlayMode()
 {
 	size_t cho = 0;
-	cout << "0.µ¥ÇúÑ­»·" << endl;
-	cout << "1.Ë³Ğò²¥·Å" << endl;
-	cout << "2.Ëæ»ú²¥·Å" << endl;
-	cout << "µ±Ç°²¥·ÅÄ£Ê½£º";
+	cout << "0.å•æ›²å¾ªç¯" << endl;
+	cout << "1.é¡ºåºæ’­æ”¾" << endl;
+	cout << "2.éšæœºæ’­æ”¾" << endl;
+	cout << "å½“å‰æ’­æ”¾æ¨¡å¼ï¼š";
 	if (musicData.mode == 0)
-		cout << "µ¥ÇúÑ­»·" << endl;
+		cout << "å•æ›²å¾ªç¯" << endl;
 	else if (musicData.mode == 1)
-		cout << "Ë³Ğò²¥·Å" << endl;
+		cout << "é¡ºåºæ’­æ”¾" << endl;
 	else if (musicData.mode == 2)
-		cout << "Ëæ»ú²¥·Å" << endl;
+		cout << "éšæœºæ’­æ”¾" << endl;
 
-	cout << "ÇëÑ¡ÔñÄãÒªÑ¡ÔñµÄ²¥·ÅÄ£Ê½£º";
+	cout << "è¯·é€‰æ‹©ä½ è¦é€‰æ‹©çš„æ’­æ”¾æ¨¡å¼ï¼š";
 	cin >> cho;
 	if (cho <= 2)
 		musicData.mode = cho;
 }
 
-// É¾³ıÒôÀÖ
+// åˆ é™¤éŸ³ä¹
 void CmdMusicPlayer::deleteMusic()
 {
 	system("cls");
 	showMusicName();
-	cout << "£¨ÌáÊ¾£ºÊäÈëÏëÉ¾³ıÒôÀÖµÄĞòºÅ²¢»Ø³µ£¬ÈôÊäÈëÍê±Ï£¬ÊäÈë·ÇÊı×Ö¼´¿É£¡£©" << endl;
-	cout << "ÇëÊäÈëÄãÏëÉ¾³ıµÄÒôÀÖ£º";
+	cout << "ï¼ˆæç¤ºï¼šè¾“å…¥æƒ³åˆ é™¤éŸ³ä¹çš„åºå·å¹¶å›è½¦ï¼Œè‹¥è¾“å…¥å®Œæ¯•ï¼Œè¾“å…¥éæ•°å­—å³å¯ï¼ï¼‰" << endl;
+	cout << "è¯·è¾“å…¥ä½ æƒ³åˆ é™¤çš„éŸ³ä¹ï¼š";
 	vector<int> tvec;
 	int it = 0;
 	while (cin >> it)
 	{
 		tvec.push_back(it);
-		cout << "ÇëÊäÈëÄãÏëÉ¾³ıµÄÒôÀÖ£º";
+		cout << "è¯·è¾“å…¥ä½ æƒ³åˆ é™¤çš„éŸ³ä¹ï¼š";
 	}
 	cin.clear();
-	while (cin.get() != '\n');											// Çå¿ÕÊäÈë»º³åÇø
-	cout << "½«ÒªÉ¾³ıÒÔÏÂ¸èÇú£º" << endl;
+	while (cin.get() != '\n');											// æ¸…ç©ºè¾“å…¥ç¼“å†²åŒº
+	cout << "å°†è¦åˆ é™¤ä»¥ä¸‹æ­Œæ›²ï¼š" << endl;
 	for (auto x : tvec)
-		cout << x << "  " << musicData.musicName.at(x) << endl;
-	cout << "ÊÇ·ñÉ¾³ı?£¨y/n£©:";
+	{
+		cout << x << "  ";
+		wcout << musicData.musicName.at(x) << endl;
+	}
+	cout << "æ˜¯å¦åˆ é™¤?ï¼ˆy/nï¼‰:";
 	char ch = 0;
 	cin >> ch;
 	if (ch == 'y' || ch == 'Y')
 	{
-		cout << "É¾³ıÒôÀÖÖĞ£¬ÇëÉÔºó..." << endl;
-		musicData.deleteMusicData(tvec);								// É¾³ıÆäÖĞµÄÒôÀÖ
-		cout << "ÒôÀÖÁĞ±íÉ¾³ıÍê³É£¡" << endl;
-		cout << "ÎÄ¼şmusic.mnÄÚÈİ¸üĞÂÖĞ..." << endl;
+		cout << "åˆ é™¤éŸ³ä¹ä¸­ï¼Œè¯·ç¨å..." << endl;
+		musicData.deleteMusicData(tvec);								// åˆ é™¤å…¶ä¸­çš„éŸ³ä¹
+		cout << "éŸ³ä¹åˆ—è¡¨åˆ é™¤å®Œæˆï¼" << endl;
+		cout << "æ–‡ä»¶music.mnå†…å®¹æ›´æ–°ä¸­..." << endl;
 
 		fstream ft("music.mn", ios_base::out);
 		if (!ft.is_open())
 		{
-			cerr << "ÎÄ¼şmusic.mn´ò¿ªÊ§°ÜÁË£¬ÇëÉÔºóÖØÊÔ£¡" << endl;
+			cerr << "æ–‡ä»¶music.mnæ‰“å¼€å¤±è´¥äº†ï¼Œè¯·ç¨åé‡è¯•ï¼" << endl;
 		}
 		else
 		{
 			musicData.wFileMusic(ft);
 			ft.close();
-			cout << "ÎÄ¼şmusic.mnÄÚÈİ¸üĞÂÍê³É£¡" << endl;
+			cout << "æ–‡ä»¶music.mnå†…å®¹æ›´æ–°å®Œæˆï¼" << endl;
 		}
 	}
 	else
 	{
-		cout << "ÒÑÈ¡ÏûÒôÀÖÉ¾³ı£¡" << endl;
+		cout << "å·²å–æ¶ˆéŸ³ä¹åˆ é™¤ï¼" << endl;
 	}
 	Sleep(2000);
 }
 
-// Ñ¡ÔñÒôÀÖ²¥·Å
+// é€‰æ‹©éŸ³ä¹æ’­æ”¾
 void CmdMusicPlayer::chooseMusicPlay()
 {
 	system("cls");
 	size_t choose = 0;
 	showMusicName();
-	cout << "£¨ÌáÊ¾£ºÊäÈë³¬³ö·¶Î§µÄÖµ½«ÍË³öÑ¡Ôñ£¡£©" << endl;
-	cout << "ÇëÑ¡ÔñÄãÏë²¥·ÅµÄ¸èÇú£º";
+	cout << "ï¼ˆæç¤ºï¼šè¾“å…¥è¶…å‡ºèŒƒå›´çš„å€¼å°†é€€å‡ºé€‰æ‹©ï¼ï¼‰" << endl;
+	cout << "è¯·é€‰æ‹©ä½ æƒ³æ’­æ”¾çš„æ­Œæ›²ï¼š";
 	cin >> choose;
 	if (choose < musicData.musicName.size())
 	{
@@ -639,28 +649,31 @@ void CmdMusicPlayer::chooseMusicPlay()
 	}
 	else
 	{
-		cout << "ÒÑÍË³öÑ¡Ôñ£¡" << endl;
+		cout << "å·²é€€å‡ºé€‰æ‹©ï¼" << endl;
 		Sleep(1000);
 	}
 	system("cls");
 }
 
-// ÏÔÊ¾ÒôÀÖ²¥·ÅÁĞ±í
+// æ˜¾ç¤ºéŸ³ä¹æ’­æ”¾åˆ—è¡¨
 void CmdMusicPlayer::showMusicName()
 {
 	if (musicData.musicName.empty())
 	{
-		cout << "ÎŞ²¥·ÅÁĞ±í£¡" << endl;
+		cout << "æ— æ’­æ”¾åˆ—è¡¨ï¼" << endl;
 		return;
 	}
 
 	size_t i = 0;
-	cout << "²¥·ÅÁĞ±í£º" << endl;
+	cout << "æ’­æ”¾åˆ—è¡¨ï¼š" << endl;
 	for (auto& x : musicData.musicName)
-		cout << i++ << "  " << x << endl;
+	{
+		cout << i++ << "  "; 
+		wcout << x << endl;
+	}
 }
 
-// ÏÔÊ¾²¥·ÅĞÅÏ¢
+// æ˜¾ç¤ºæ’­æ”¾ä¿¡æ¯
 void CmdMusicPlayer::showPlayInformation()
 {
 	int t = 0, t0 = 0;
@@ -669,8 +682,8 @@ void CmdMusicPlayer::showPlayInformation()
 		t = musicData.getPlayerBackTimeMusic();
 		t0 = musicData.getTotalTime();
 	}
-	auto chonum = [](size_t a, size_t b)noexcept {return a > b ? 0 : a; };		// lamdom±í´ïÊ½
-	if (musicData.status && t == t0)											// ²¥·ÅÊÇ·ñ½áÊø
+	auto chonum = [](size_t a, size_t b)noexcept {return a > b ? 0 : a; };		// lamdomè¡¨è¾¾å¼
+	if (musicData.status && t == t0)											// æ’­æ”¾æ˜¯å¦ç»“æŸ
 	{
 		musicData.status = 3;
 		musicData.closeMusic();
@@ -685,8 +698,8 @@ void CmdMusicPlayer::showPlayInformation()
 			system("cls");
 			if (!musicData.status)
 			{
-				cout << "ÒôÀÖ" << musicData.nowMusicName << "²¥·ÅÊ§°Ü£¡" << endl;
-				cout << "¼´½«²¥·ÅÏÂÒ»Ê×ÒôÀÖ£º" << musicData.musicName.at(chonum(musicData.number + 1,
+				wcout << L"éŸ³ä¹" << musicData.nowMusicName << L"æ’­æ”¾å¤±è´¥ï¼" << endl;
+				wcout << L"å³å°†æ’­æ”¾ä¸‹ä¸€é¦–éŸ³ä¹ï¼š" << musicData.musicName.at(chonum(musicData.number + 1,
 					musicData.musicName.size() - 1)) << endl;
 				Sleep(2000);
 				musicData.openMusic(chonum(musicData.number + 1, musicData.musicName.size()));
@@ -700,8 +713,8 @@ void CmdMusicPlayer::showPlayInformation()
 			if (!musicData.status)
 			{
 				const size_t stemp = rand() % musicData.musicName.size();
-				cout << "ÒôÀÖ£º" << musicData.nowMusicName << "  ²¥·ÅÊ§°Ü£¡" << endl;
-				cout << "¼´½«²¥·ÅÏÂÒ»Ê×ÒôÀÖ£º" << musicData.musicName.at(stemp) << endl;
+				wcout << L"éŸ³ä¹ï¼š" << musicData.nowMusicName << L"  æ’­æ”¾å¤±è´¥ï¼" << endl;
+				wcout << L"å³å°†æ’­æ”¾ä¸‹ä¸€é¦–éŸ³ä¹ï¼š" << musicData.musicName.at(stemp) << endl;
 				Sleep(2000);
 				musicData.openMusic(stemp);
 			}
@@ -715,27 +728,27 @@ void CmdMusicPlayer::showPlayInformation()
 	cout << "                                                                                                                            ";
 	pos(x, 27);
 	if (musicData.status == 0)
-		cout << "ÔİÎŞ²¥·Å£¡" << endl;
+		wcout << L"æš‚æ— æ’­æ”¾ï¼" << endl;
 	else if (musicData.status == 1)
-		cout << "ÕıÔÚ²¥·Å£º" << musicData.nowMusicName << endl;
+		wcout << L"æ­£åœ¨æ’­æ”¾ï¼š" << musicData.nowMusicName << endl;
 	else if (musicData.status == 2)
-		cout << "ÒÑÔİÍ£²¥·Å£º" << musicData.nowMusicName << endl;
+		wcout << L"å·²æš‚åœæ’­æ”¾ï¼š" << musicData.nowMusicName << endl;
 	else if (musicData.status == 3)
-		cout << "²¥·Å½áÊø£º" << musicData.nowMusicName << endl;
+		wcout << L"æ’­æ”¾ç»“æŸï¼š" << musicData.nowMusicName << endl;
 
 	pos(0, 28);
 	cout << "                                                                                                                            ";
 	pos(0, 28);
-	cout << "ÒÑ²¥·Å£º" << t / 60 << "·Ö" << t % 60 << "Ãë" << "			"
-		<< "×ÜÊ±³¤£º" << t0 / 60 << "·Ö" << t0 % 60 << "Ãë" << "		"
-		<< "ÒôÁ¿£º" << musicData.volume << "		"
-		<< "²¥·ÅÄ£Ê½£º";
+	cout << "å·²æ’­æ”¾ï¼š" << t / 60 << "åˆ†" << t % 60 << "ç§’" << "			"
+		<< "æ€»æ—¶é•¿ï¼š" << t0 / 60 << "åˆ†" << t0 % 60 << "ç§’" << "		"
+		<< "éŸ³é‡ï¼š" << musicData.volume << "		"
+		<< "æ’­æ”¾æ¨¡å¼ï¼š";
 	if (musicData.mode == 0)
-		cout << "µ¥ÇúÑ­»·" << endl;
+		cout << "å•æ›²å¾ªç¯" << endl;
 	else if (musicData.mode == 1)
-		cout << "Ë³Ğò²¥·Å" << endl;
+		cout << "é¡ºåºæ’­æ”¾" << endl;
 	else if (musicData.mode == 2)
-		cout << "Ëæ»ú²¥·Å" << endl;
+		cout << "éšæœºæ’­æ”¾" << endl;
 }
 
 
@@ -743,7 +756,7 @@ void CmdMusicPlayer::showPlayInformation()
 * CmdMusicPlayer public method                                   *
 **************************************************************/
 
-// ¹¦ÄÜÑ¡Ôñ
+// åŠŸèƒ½é€‰æ‹©
 int CmdMusicPlayer::chooseFunction()
 {
 	system("cls");
@@ -752,15 +765,15 @@ int CmdMusicPlayer::chooseFunction()
 		showPlayInformation();
 
 		pos(0, 0);
-		cout << "0.ÍË³ö" << endl;
-		cout << "1.ÔİÍ£" << endl;
-		cout << "2.¼ÌĞø" << endl;
-		cout << "3.ÒôÁ¿µ÷½Ú" << endl;
-		cout << "4.É¾³ıÒôÀÖ" << endl;
-		cout << "5.Ñ¡ÔñÒôÀÖ²¥·Å" << endl;
-		cout << "6.ÉèÖÃ²¥·ÅÄ£Ê½" << endl;
-		cout << "7.ÉèÖÃËÑË÷Â·¾¶" << endl;
-		cout << "ÇëÊäÈëÄãÏëÑ¡ÔñµÄ¹¦ÄÜ£º";
+		cout << "0.é€€å‡º" << endl;
+		cout << "1.æš‚åœ" << endl;
+		cout << "2.ç»§ç»­" << endl;
+		cout << "3.éŸ³é‡è°ƒèŠ‚" << endl;
+		cout << "4.åˆ é™¤éŸ³ä¹" << endl;
+		cout << "5.é€‰æ‹©éŸ³ä¹æ’­æ”¾" << endl;
+		cout << "6.è®¾ç½®æ’­æ”¾æ¨¡å¼" << endl;
+		cout << "7.è®¾ç½®æœç´¢è·¯å¾„" << endl;
+		cout << "è¯·è¾“å…¥ä½ æƒ³é€‰æ‹©çš„åŠŸèƒ½ï¼š";
 		Sleep(500);
 	} while (!_kbhit());
 
@@ -768,7 +781,7 @@ int CmdMusicPlayer::chooseFunction()
 	cin >> n;
 	switch (n)
 	{
-	case 0:cout << "ÒÑÍË³ö²¥·Å£¡" << endl; Sleep(1000); return 0;
+	case 0:cout << "å·²é€€å‡ºæ’­æ”¾ï¼" << endl; Sleep(1000); return 0;
 	case 1:musicData.pauseMusic(); break;
 	case 2:musicData.playMusic(); break;
 	case 3:setMusicVolume(); break;
@@ -776,7 +789,7 @@ int CmdMusicPlayer::chooseFunction()
 	case 5:chooseMusicPlay(); break;
 	case 6:setPlayMode(); break;
 	case 7:setFilePath(); break;
-	default:cout << "Ñ¡Ôñ´íÎó£¡" << endl; break;
+	default:cout << "é€‰æ‹©é”™è¯¯ï¼" << endl; break;
 	}
 	return 1;
 }
@@ -788,14 +801,141 @@ int CmdMusicPlayer::chooseFunction()
 **********************************************************************************************************************/
 
 /**************************************************************
+* GuiMusicPlayer private method                               *
+**************************************************************/
+
+bool GuiMusicPlayer::findBgPicture()noexcept
+{
+	long hFile = 0;
+	struct _finddata_t fileinfo;																		// æ–‡ä»¶ä¿¡æ¯ 
+	if ((hFile = _findfirst("background.jpg", &fileinfo)) != -1)										// æŸ¥æ‰¾æ‰€æœ‰æ–‡ä»¶
+		return true;
+
+	return false;
+}
+
+void GuiMusicPlayer::ui()
+{
+	constexpr COLORREF c0 = YELLOW;
+	settextcolor(BLUE);																					// å­—ä½“é¢œè‰²
+	settextstyle(15, 0, L"å®‹ä½“");																		// å­—ä½“æ ·å¼
+	setbkmode(TRANSPARENT);																				// æ–‡å­—è¾“å‡ºèƒŒæ™¯é€æ˜
+	outtextxy(WIDTH - 40, 10, L"è®¾ç½®");
+	setlinecolor(0XE8E8E8);
+	line(0, 40, WIDTH, 40);																				// ä¸Šè¾¹ç•Œçº¿
+
+	outtextxy(50, 60, L"æˆ‘çš„éŸ³ä¹");
+	outtextxy(50, 180, L"æ’­æ”¾åˆ—è¡¨");						
+
+	/*********************************************************************************************************************
+	* ç”»æ’­æ”¾æ¡†ui                                                                                                         *
+	*********************************************************************************************************************/
+	setlinecolor(c0);																					// è®¾ç½®ç”»çº¿é¢œè‰²
+	setfillcolor(c0);																					// è®¾ç½®å¡«å……é¢œè‰²
+	line(0, HEIGHT - 60, WIDTH, HEIGHT - 60);															// ç”»è¿›åº¦æ¡
+	line(0, HEIGHT - 59, WIDTH, HEIGHT - 59);
+
+	line(WIDTH / 2 - 64, HEIGHT - 37, WIDTH / 2 - 64, HEIGHT - 23);										// |
+	line(WIDTH / 2 - 65, HEIGHT - 37, WIDTH / 2 - 65, HEIGHT - 23);
+
+	const array<array<POINT, 2>, 3> a0{ WIDTH / 2 - 48,HEIGHT - 38,WIDTH / 2 - 48,HEIGHT - 22,WIDTH / 2 - 60,HEIGHT - 30 };
+	solidpolygon(&a0.at(0).at(0), 3);																	// <|
+
+	setfillcolor(c0);
+	solidcircle(WIDTH / 2, HEIGHT - 30, 20);															// âšª
+
+	const array<array<POINT, 2>, 3> a1{ WIDTH / 2 + 48,HEIGHT - 38,WIDTH / 2 + 48,HEIGHT - 22,WIDTH / 2 + 60,HEIGHT - 30 };
+	solidpolygon(&a1.at(0).at(0), 3);																	// |>
+
+	line(WIDTH / 2 + 64, HEIGHT - 37, WIDTH / 2 + 64, HEIGHT - 23);										// |
+	line(WIDTH / 2 + 65, HEIGHT - 37, WIDTH / 2 + 65, HEIGHT - 23);
+
+	setlinecolor(WHITE);
+	const array<POINT, 14> a2{ WIDTH / 2 + 120,HEIGHT - 34,WIDTH / 2 + 125,HEIGHT - 34,WIDTH / 2 + 129,HEIGHT - 38,
+		WIDTH / 2 + 129,HEIGHT - 22,WIDTH / 2 + 125,HEIGHT - 26,WIDTH / 2 + 120,HEIGHT - 26,WIDTH / 2 + 120,HEIGHT - 34 };
+	polyline(&a2.at(0), 7);																				// ç”»å°å–‡å­
+
+	arc(WIDTH / 2 + 125, HEIGHT - 35, WIDTH / 2 + 135, HEIGHT - 25, -3.1415926 / 3, 3.1415926 / 3);		// ç”»åœ†å¼§
+
+	line(WIDTH / 2 + 140, HEIGHT - 30, WIDTH / 2 + 240, HEIGHT - 30);									// ç”»éŸ³é‡æ¡
+
+	drawStartPause();
+	showPlayList();
+}
+
+void GuiMusicPlayer::drawStartPause()
+{
+	setfillcolor(WHITE);
+	if (musicData.status == 1)																			// ç”»æ’­æ”¾
+	{
+		solidrectangle(WIDTH / 2 - 7, HEIGHT - 38, WIDTH / 2 - 3, HEIGHT - 22);							
+		solidrectangle(WIDTH / 2 + 7, HEIGHT - 38, WIDTH / 2 + 3, HEIGHT - 22);
+
+	}
+	else																								// ç”»æš‚åœ
+	{
+		const array<array<POINT, 2>, 3> a0{ WIDTH / 2 - 7,HEIGHT - 40,WIDTH / 2 - 7,HEIGHT - 20,WIDTH / 2 + 10,HEIGHT - 30 };
+		solidpolygon(&a0.at(0).at(0), 3);																
+	}
+}
+
+void GuiMusicPlayer::showPlayList()
+{
+	settextcolor(0XFFCC66);																					// å­—ä½“é¢œè‰²
+	//settextstyle(15, 0, L"å®‹ä½“");																		// å­—ä½“æ ·å¼
+	//setbkmode(TRANSPARENT);																				// æ–‡å­—è¾“å‡ºèƒŒæ™¯é€æ˜
+	if (!musicData.musicName.empty())
+	{
+		for (int i =  0; i < 13; ++i)
+		{
+			outtextxy(260, 40 + 20 + i * 40, musicData.musicName.at(i).c_str());
+		}
+
+	}
+	else
+	{
+		outtextxy(240, 40 + 10, L"åˆ—è¡¨ä¸ºç©ºï¼");
+	}
+}
+
+
+/**************************************************************
 * GuiMusicPlayer public method                                *
 **************************************************************/
 
 GuiMusicPlayer::GuiMusicPlayer()
 {
+	initgraph(WIDTH, HEIGHT);
+
+	setbkcolor(WHITE);													// è®¾ç½®å¡«å……è‰² ç™½è‰²
+	loadimage(&img, L"background.jpg",WIDTH,HEIGHT);					// åŠ è½½èƒŒæ™¯å›¾ç‰‡
+	putimage(0, 0, &img);												// æ˜¾ç¤ºèƒŒæ™¯å›¾ç‰‡
+	if (!findBgPicture())												// æŸ¥è¯¢æ˜¯å¦å­˜åœ¨èƒŒæ™¯å›¾ç‰‡
+		cleardevice();													// ä½¿ç”¨èƒŒæ™¯è‰²æ¸…ç©ºç”»é¢
+}
+
+GuiMusicPlayer::~GuiMusicPlayer()
+{
+	closegraph();
+}
+
+void GuiMusicPlayer::choose()
+{
+	ui();
 
 
 
 
+
+	MOUSEMSG m0{};
+	while(true)
+	{ 
+		if (MouseHit())
+		{
+			m0 = GetMouseMsg();
+			if (m0.mkRButton)
+				break;
+		}
+	}
 
 }
