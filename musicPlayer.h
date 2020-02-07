@@ -8,6 +8,7 @@
 #include<cstdlib>
 #include<conio.h>
 #include<io.h>
+#include<easyx.h>
 #include<windows.h>
 #include<mmsystem.h>
 #include<Digitalv.h>
@@ -60,7 +61,7 @@ public:
 class MusicData
 {
 private:
-	string filePath = "";									// 要查找的文件路径
+	string filePath;										// 要查找的文件路径
 	string musicFormat = "mp3";								// 要查找的文件格式
 	string nowMusicName;									// 正在操作的音乐名
 	vector<string> musicPathName;							// 存储全路径音乐文件名
@@ -117,7 +118,13 @@ private:
 	void showMusicName();									// 显示音乐名称列表
 	void showPlayInformation();								// 显示音乐的播放信息
 public:
-	MusicPlayer();											// 默认构造函数
-	~MusicPlayer();											// 析构函数
 	int chooseFunction();									// 功能选择
 };
+
+
+/************************************************
+ *              class MusicPlayer               *
+ * 交互层                                       *
+ * 与用户进行交互                               *
+ * 并将交互结果发送给MusicDate进行处理          *
+ ***********************************************/

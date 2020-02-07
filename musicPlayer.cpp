@@ -743,16 +743,6 @@ void MusicPlayer::showPlayInformation()
 * MusicPlayer public method                                   *
 **************************************************************/
 
-MusicPlayer::MusicPlayer()
-{
-
-}
-
-MusicPlayer::~MusicPlayer()
-{
-
-}
-
 // ¹¦ÄÜÑ¡Ôñ
 int MusicPlayer::chooseFunction()
 {
