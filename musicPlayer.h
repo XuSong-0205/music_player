@@ -6,6 +6,7 @@
 #include<array>
 #include<algorithm>
 #include<ctime>
+#include<cmath>
 #include<cstdlib>
 #include<conio.h>
 #include<io.h>
@@ -70,7 +71,7 @@ private:
 	vector<string> musicPathName;							// 存储全路径音乐文件名
 	vector<wstring> musicName;								// 存储音乐文件名
 	MusicMCI musicMci;										// 执行音乐播放操作的对象
-	size_t status = 0;										// 播放状态 0未播放 1正在播放 2暂停播放 3播放完毕
+	size_t status = 0;										// 播放状态 0未播放 1正在播放 2暂停播放 //3播放完毕
 	size_t volume = 500;									// 当前音量大小
 	size_t number = 0;										// 正在操作的音乐编号
 	size_t mode = 2;										// 音乐播放模式 0单个播放 1顺序播放(列表循环) 2随机播放
@@ -101,29 +102,29 @@ public:
 };
 
 
-/************************************************
- *             class CmdMusicPlayer             *
- * 交互层                                       *
- * 与用户进行交互                               *
- * 并将交互结果发送给MusicDate进行处理          *
- ***********************************************/
-
-class CmdMusicPlayer
-{
-private:
-	MusicData musicData;									// 音乐数据类对象
-
-	void pos(short x, short y)noexcept;						// 光标函数
-	void setMusicVolume();									// 设置音乐播放音量
-	void setFilePath();										// 设置文件搜索路径
-	void setPlayMode();										// 设置音乐播放模式
-	void deleteMusic();										// 从播放列表中删除音乐
-	void chooseMusicPlay();									// 在音乐列表中选择音乐播放
-	void showMusicName();									// 显示音乐名称列表
-	void showPlayInformation();								// 显示音乐的播放信息
-public:
-	int chooseFunction();									// 功能选择
-};
+///************************************************
+// *             class CmdMusicPlayer             *
+// * 交互层                                       *
+// * 与用户进行交互                               *
+// * 并将交互结果发送给MusicDate进行处理          *
+// ***********************************************/
+//
+//class CmdMusicPlayer
+//{
+//private:
+//	MusicData musicData;									// 音乐数据类对象
+//
+//	void pos(short x, short y)noexcept;						// 光标函数
+//	void setMusicVolume();									// 设置音乐播放音量
+//	void setFilePath();										// 设置文件搜索路径
+//	void setPlayMode();										// 设置音乐播放模式
+//	void deleteMusic();										// 从播放列表中删除音乐
+//	void chooseMusicPlay();									// 在音乐列表中选择音乐播放
+//	void showMusicName();									// 显示音乐名称列表
+//	void showPlayInformation();								// 显示音乐的播放信息
+//public:
+//	int chooseFunction();									// 功能选择
+//};
 
 
 /************************************************
@@ -138,7 +139,7 @@ class GuiMusicPlayer
 private:
 	MusicData musicData;
 	IMAGE img;
-	array<int, 2> numRange{ 0,0 };							// 播放列表显示的音乐范围 numRange[0]指向显示在音乐列表musicData.musicName的开始
+	array<int, 2> numRange{ 0,12 };							// 播放列表显示的音乐范围 numRange[0]指向显示在音乐列表musicData.musicName的开始
 															// numRange[1]指向musicData.musicName在播放列表的最后一个
 	static const int WIDTH = 960;
 	static const int HEIGHT = 640;
@@ -146,8 +147,9 @@ private:
 
 	bool findBgPicture()noexcept;							// 查找是否存在背景图片
 	void ui();
-	void drawStartPause();
-	void showPlayList();
+	void drawStartPause();									// 画开始暂停键
+	void showPlayList();									// 显示播放列表
+	void drawPlayInformation();								// 画播放信息
 public:
 	GuiMusicPlayer();
 	~GuiMusicPlayer();
