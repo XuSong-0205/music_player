@@ -1116,7 +1116,7 @@ void GuiMusicPlayer::choose()
 
 					if (musicData.mode == 0 || musicData.mode == 1)
 					{
-						musicData.openMusic(musicData.number - 1 < 0 ? musicData.musicName.size() - 1 : musicData.number - 1);
+						musicData.openMusic(musicData.number + 1 > musicData.musicName.size() - 1 ? 0 : musicData.number + 1);
 					}
 					else
 					{
