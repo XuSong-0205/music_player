@@ -500,10 +500,10 @@ bool GuiMusicPlayer::findBgPicture()noexcept
 void GuiMusicPlayer::ui()
 {
 	constexpr COLORREF c0 = 0XAA00AA;
-	settextcolor(BLUE);																					// 字体颜色
+	settextcolor(0X0000AA);																				// 字体颜色
 	settextstyle(15, 0, L"宋体");																		// 字体样式
 	setbkmode(TRANSPARENT);																				// 文字输出背景透明
-	outtextxy(WIDTH - 100, 10, L"设置");
+	outtextxy(WIDTH - 120, 10, L"设置");
 	outtextxy(WIDTH - 40, 10, L"退出");
 	setlinecolor(0XE8E8E8);
 	line(0, 40, WIDTH, 40);																				// 上边界线
