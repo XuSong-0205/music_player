@@ -499,7 +499,7 @@ bool GuiMusicPlayer::findBgPicture()noexcept
 
 void GuiMusicPlayer::ui()
 {
-	constexpr COLORREF c0 = YELLOW;
+	constexpr COLORREF c0 = 0XAA00AA;
 	settextcolor(BLUE);																					// 字体颜色
 	settextstyle(15, 0, L"宋体");																		// 字体样式
 	setbkmode(TRANSPARENT);																				// 文字输出背景透明
@@ -548,7 +548,7 @@ void GuiMusicPlayer::ui()
 
 void GuiMusicPlayer::drawStartPause()
 {
-	setfillcolor(YELLOW);
+	setfillcolor(0XAA00AA);
 	solidcircle(WIDTH / 2, HEIGHT - 30, 20);
 
 	setfillcolor(WHITE);
@@ -664,8 +664,8 @@ void GuiMusicPlayer::drawPlayInformation()
 		outtextxy(WIDTH / 2 + 300, HEIGHT - 40, L"随机播放");
 
 
-	setlinecolor(YELLOW);
-	setfillcolor(YELLOW);
+	setlinecolor(0XAA00AA);
+	setfillcolor(0XAA00AA);
 	line(WIDTH / 2 + 140, HEIGHT - 30, WIDTH / 2 + 140 + musicData.volume / 10, HEIGHT - 30);
 	line(WIDTH / 2 + 140, HEIGHT - 31, WIDTH / 2 + 140 + musicData.volume / 10, HEIGHT - 31);
 	solidrectangle(WIDTH / 2 + 140 + musicData.volume / 10, HEIGHT - 35,
