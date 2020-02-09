@@ -649,10 +649,10 @@ void GuiMusicPlayer::drawPlayInformation()
 	setlinecolor(0XE8E8E8);																			// 显示进度条信息
 	line(0, HEIGHT - 60, WIDTH, HEIGHT - 60);
 	line(0, HEIGHT - 59, WIDTH, HEIGHT - 59);
-	setlinecolor(YELLOW);
+	setlinecolor(0XAA00AA);
 	line(0, HEIGHT - 60, static_cast<int>(WIDTH * ((t0 + 0.0) / t1)), HEIGHT - 60);
-	line(0, HEIGHT - 59, static_cast<int>(WIDTH * ((t0 + 0.0) / t1)), HEIGHT - 60);
-	setfillcolor(YELLOW);
+	line(0, HEIGHT - 59, static_cast<int>(WIDTH * ((t0 + 0.0) / t1)), HEIGHT - 59);
+	setfillcolor(0XAA00AA);
 	solidcircle(static_cast<int>(WIDTH * ((t0 + 0.0) / t1)), HEIGHT - 60, 4);						// 画进度条小球
 
 
