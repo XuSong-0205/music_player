@@ -148,8 +148,7 @@ private:
 	bool findBgPicture()noexcept;							// 查找是否存在背景图片
 	void ui();
 	void drawStartPause();									// 画开始暂停键
-	void showPlayList();									// 显示播放列表
-	void drawPlayInformation();								// 画播放信息
+	void drawPlayInformation();								// 显示播放信息
 public:
 	GuiMusicPlayer();
 	~GuiMusicPlayer();
