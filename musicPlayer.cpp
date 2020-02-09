@@ -503,7 +503,8 @@ void GuiMusicPlayer::ui()
 	settextcolor(BLUE);																					// 字体颜色
 	settextstyle(15, 0, L"宋体");																		// 字体样式
 	setbkmode(TRANSPARENT);																				// 文字输出背景透明
-	outtextxy(WIDTH - 40, 10, L"设置");
+	outtextxy(WIDTH - 100, 10, L"设置");
+	outtextxy(WIDTH - 40, 10, L"退出");
 	setlinecolor(0XE8E8E8);
 	line(0, 40, WIDTH, 40);																				// 上边界线
 	line(0, HEIGHT - 60, WIDTH, HEIGHT - 60);															// 画进度条
@@ -708,8 +709,9 @@ void GuiMusicPlayer::choose()
 			m0 = GetMouseMsg();																// 获取鼠标消息
 			FlushMouseMsgBuffer();
 
-			if (m0.mkRButton)																// 右键退出
-				break;
+			if (m0.x >= WIDTH - 40 && m0.x <= WIDTH - 10 && m0.y >= 10 && m0.y <= 25)		// 按退出键退出
+				if (m0.mkLButton)
+					break;
 			
 			if (m0.x > 260 && m0.x < WIDTH && m0.y>40 && m0.y < HEIGHT - 60)				// 鼠标在播放列表
 			{
@@ -742,13 +744,17 @@ void GuiMusicPlayer::choose()
 				if (m0.wheel / 120)															// 鼠标滚动消息
 				{																			// 更新播放列表显示内容
 					const int tw = m0.wheel / 120;
-					if (tw >= 0)
-						numRange.at(0) = (numRange.at(0) - tw) < 0 ? 0 : (numRange.at(0) - tw);
-					else
-						numRange.at(0) = (numRange.at(0) - tw) > (musicData.musicName.size() - 1 - 12) ?
-						(musicData.musicName.size() - 1 - 12) : (numRange.at(0) - tw);
+					const int ts = musicData.musicName.size() - 1;
 
-					numRange.at(1) = numRange.at(0) + 12;
+					if (ts > 13)
+					{
+						if (tw >= 0)
+							numRange.at(0) = (numRange.at(0) - tw) < 0 ? 0 : (numRange.at(0) - tw);
+						else
+							numRange.at(0) = (numRange.at(0) - tw) > (ts - 12) ? (ts - 12) : (numRange.at(0) - tw);
+
+						numRange.at(1) = numRange.at(0) + 12;
+					}
 				}
 
 			}
