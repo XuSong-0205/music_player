@@ -534,13 +534,14 @@ void GuiMusicPlayer::ui()
 	line(WIDTH / 2 + 64, HEIGHT - 37, WIDTH / 2 + 64, HEIGHT - 23);										// |
 	line(WIDTH / 2 + 65, HEIGHT - 37, WIDTH / 2 + 65, HEIGHT - 23);
 
-	setlinecolor(WHITE);
+	setlinecolor(0XAA00AA);
 	const array<POINT, 14> a2{ WIDTH / 2 + 120,HEIGHT - 34,WIDTH / 2 + 125,HEIGHT - 34,WIDTH / 2 + 129,HEIGHT - 38,
 		WIDTH / 2 + 129,HEIGHT - 22,WIDTH / 2 + 125,HEIGHT - 26,WIDTH / 2 + 120,HEIGHT - 26,WIDTH / 2 + 120,HEIGHT - 34 };
 	polyline(&a2.at(0), 7);																				// 画小喇叭
 
 	arc(WIDTH / 2 + 125, HEIGHT - 35, WIDTH / 2 + 135, HEIGHT - 25, -3.1415926 / 3, 3.1415926 / 3);		// 画圆弧
 
+	setlinecolor(0XFFFFFF);
 	line(WIDTH / 2 + 140, HEIGHT - 30, WIDTH / 2 + 240, HEIGHT - 30);									// 画音量条
 
 	drawStartPause();
@@ -570,8 +571,8 @@ void GuiMusicPlayer::drawPlayInformation()
 	settextcolor(0XAA00AA);																			// 字体颜色
 	settextstyle(14, 0, L"宋体");
 	static int ti = 0;
-	static IMAGE i0, i1, i2, i3, i4, i5;
-	if(!ti)																							// 只读取一次还区域
+	static IMAGE i0, i1, i2, i3, i4, i5, i6;
+	if(!ti)																							// 只读取一次该区域
 	{
 		getimage(&i0, 30, HEIGHT - 45, WIDTH / 2 - 100, 20);										// 歌曲名下的背景
 
@@ -584,6 +585,8 @@ void GuiMusicPlayer::drawPlayInformation()
 		getimage(&i4, 0, HEIGHT - 65, WIDTH, 10);													// 进度条
 
 		getimage(&i5, 260, 40, 660, 540);															// 播放列表
+
+		getimage(&i6, 130, 180, 50, 20);															// 播放列表字体旁的箭头
 		++ti;
 	}
 		
@@ -593,22 +596,41 @@ void GuiMusicPlayer::drawPlayInformation()
 	putimage(30, HEIGHT - 30, &i3);																	// 音乐时间
 	putimage(0, HEIGHT - 65, &i4);																	// 进度条
 	putimage(260, 40, &i5);																			// 播放列表
+	putimage(130, 180, &i6);																		// 播放列表箭头
 
-	if (!musicData.musicName.empty())																// 显示播放列表
+	if (bList)																						// 是否显示播放列表
 	{
-		for (int i = 0; i <= 12; ++i)
+		if (!musicData.musicName.empty())																// 显示播放列表
 		{
-			wstring s0;
-			if (musicData.musicName.at(i + numRange.at(0)).size() > 60)
-				s0 = musicData.musicName.at(i + numRange.at(0)).substr(0, 60) + L"...";
-			else
-				s0 = musicData.musicName.at(i + numRange.at(0));
-			outtextxy(260, 40 + 15 + i * 40, s0.c_str());
+			for (int i = 0; i <= 12; ++i)
+			{
+				wstring s0;
+				if (musicData.musicName.at(i + numRange.at(0)).size() > 60)								// 超出一定长度的名字只显示一部分
+					s0 = musicData.musicName.at(i + numRange.at(0)).substr(0, 60) + L"...";
+				else
+					s0 = musicData.musicName.at(i + numRange.at(0));
+				outtextxy(260, 40 + 20 + i * 40, s0.c_str());
+			}
 		}
+		else
+			outtextxy(260, 40 + 15, L"列表为空！");
+	}
+	
+	if (bList)																						// 画播放列表的箭头
+	{
+		setlinecolor(0X0000AA);	
+		line(140, 185, 162, 185);
+		line(159, 179, 165, 185);
+		line(159, 191, 165, 185);
 	}
 	else
-		outtextxy(260, 40 + 15, L"列表为空！");
-	
+	{
+		setlinecolor(0X0000AA);
+		line(140, 185, 162, 185);
+		line(137, 185, 143, 179);
+		line(137, 185, 143, 191);
+	}
+
 	if (musicData.nowMusicName.size() < 26)
 		outtextxy(30, HEIGHT - 45, musicData.nowMusicName.c_str());									// 再显示音乐名
 	else
@@ -656,7 +678,7 @@ void GuiMusicPlayer::drawPlayInformation()
 	solidcircle(static_cast<int>(WIDTH * ((t0 + 0.0) / t1)), HEIGHT - 60, 4);						// 画进度条小球
 
 
-	if (musicData.mode == 0)
+	if (musicData.mode == 0)																		// 播放模式
 		outtextxy(WIDTH / 2 + 300, HEIGHT - 40, L"单曲循环");
 	else if (musicData.mode == 1)
 		outtextxy(WIDTH / 2 + 300, HEIGHT - 40, L"顺序播放");
@@ -713,7 +735,7 @@ void GuiMusicPlayer::choose()
 				if (m0.mkLButton)
 					break;
 			
-			if (m0.x > 260 && m0.x < WIDTH && m0.y>40 && m0.y < HEIGHT - 60)				// 鼠标在播放列表
+			if (bList && m0.x > 260 && m0.x < WIDTH && m0.y>40 && m0.y < HEIGHT - 60)				// 鼠标在播放列表
 			{
 				if (m0.mkLButton)															// 左键按下
 				{
@@ -741,7 +763,7 @@ void GuiMusicPlayer::choose()
 					}
 				}
 
-				if (m0.wheel / 120)															// 鼠标滚动消息
+				if (bList && m0.wheel / 120)												// 鼠标滚动消息
 				{																			// 更新播放列表显示内容
 					const int tw = m0.wheel / 120;
 					const int ts = musicData.musicName.size() - 1;
@@ -758,6 +780,7 @@ void GuiMusicPlayer::choose()
 				}
 
 			}
+
 
 			if (m0.mkLButton)
 			{
@@ -821,6 +844,10 @@ void GuiMusicPlayer::choose()
 						musicData.mode = 2;
 					else if (musicData.mode == 2)
 						musicData.mode = 0;
+				}
+				else if (m0.x >= 50 && m0.x <= 165 && m0.y >= 175 && m0.y <= 200)
+				{
+						bList = !bList;														// 列表是否展开
 				}
 			}
 		}

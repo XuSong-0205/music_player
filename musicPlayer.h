@@ -55,6 +55,7 @@ public:
 };
 
 
+
 /************************************************
  *              class MusicData                 *
  * 数据操作层                                   *
@@ -102,30 +103,6 @@ public:
 };
 
 
-///************************************************
-// *             class CmdMusicPlayer             *
-// * 交互层                                       *
-// * 与用户进行交互                               *
-// * 并将交互结果发送给MusicDate进行处理          *
-// ***********************************************/
-//
-//class CmdMusicPlayer
-//{
-//private:
-//	MusicData musicData;									// 音乐数据类对象
-//
-//	void pos(short x, short y)noexcept;						// 光标函数
-//	void setMusicVolume();									// 设置音乐播放音量
-//	void setFilePath();										// 设置文件搜索路径
-//	void setPlayMode();										// 设置音乐播放模式
-//	void deleteMusic();										// 从播放列表中删除音乐
-//	void chooseMusicPlay();									// 在音乐列表中选择音乐播放
-//	void showMusicName();									// 显示音乐名称列表
-//	void showPlayInformation();								// 显示音乐的播放信息
-//public:
-//	int chooseFunction();									// 功能选择
-//};
-
 
 /************************************************
  *              class GuiMusicPlayer            *
@@ -139,6 +116,7 @@ class GuiMusicPlayer
 private:
 	MusicData musicData;
 	IMAGE img;
+	bool bList = false;
 	array<int, 2> numRange{ 0,12 };							// 播放列表显示的音乐范围 numRange[0]指向显示在音乐列表musicData.musicName的开始
 															// numRange[1]指向musicData.musicName在播放列表的最后一个
 	static const int WIDTH = 960;
