@@ -1,20 +1,22 @@
 #pragma once
-#include<iostream>
-#include<fstream>
-#include<string>
-#include<vector>
-#include<array>
-#include<algorithm>
-#include<ctime>
-#include<cmath>
-#include<cstdlib>
-#include<conio.h>
-#include<io.h>
-#include<easyx.h>
-#include<windows.h>
-#include<mmsystem.h>
-#include<Digitalv.h>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <array>
+#include <algorithm>
+#include <ctime>
+#include <cmath>
+#include <cstdlib>
+#include <conio.h>
+#include <io.h>
+#include <graphics.h>
+#include <windows.h>
+#include <mmsystem.h>
+#include <Digitalv.h>
 #pragma comment(lib, "winmm.lib")
+
+#define DEBUG
 
 using std::cin;
 using std::cout;
@@ -51,7 +53,8 @@ public:
 	BOOL close()noexcept;									// 关闭音乐
 	BOOL getPlayBackTime(DWORD& pos)noexcept;				// 获取播放时间
 	BOOL getMusicTime(DWORD& time)noexcept;					// 获取音乐总时长
-	BOOL setVolume(size_t nVolumeValue)noexcept;			// 音量调节
+	BOOL setVolume(size_t nVolumeValue)noexcept;			// 设置音量大小
+	BOOL setStart(size_t start)noexcept;					// 设置播放位置
 };
 
 

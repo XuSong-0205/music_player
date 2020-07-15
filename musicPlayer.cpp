@@ -170,39 +170,67 @@ BOOL MusicMCI::setVolume(size_t nVolumeValue)noexcept
 // 打开并播放音乐
 void MusicData::openMusic(size_t num)
 {
-	if (num > musicPathName.size() - 1)
+	if (musicPathName.empty() || num > musicPathName.size() - 1)
 	{
+#ifdef DEBUG
 		cout << "参数不符合要求，请重试！" << endl;
+#endif // DEBUG
+
 		status = 0;
 		return;
 	}
 
 	wstring musci_name = stringTowstring(musicPathName.at(num));
-	nowMusicName.assign(musicName.at(num));							// 设置正在操作的音乐名
+	nowMusicName = musicName.at(num);								// 设置正在操作的音乐名
 	number = num;													// 设置正在操作的音乐名编号
 	if (musicMci.open(musci_name.c_str()))
 	{
-		cout << "音乐打开成功！" << endl;
+#ifdef DEBUG
+		wcout.imbue(std::locale("", LC_CTYPE));
+		cout << "音乐 ";
+		wcout << nowMusicName;
+		cout << " 打开成功！" << endl;
+#endif // DEBUG
 
 		playMusic();
 		musicMci.setVolume(volume);
 	}
 	else
-		cout << "音乐打开失败，请稍后重试！" << endl;
+	{
+#ifdef DEBUG
+		wcout.imbue(std::locale("", LC_CTYPE));
+		cout << "音乐 ";
+		wcout << nowMusicName;
+		cout << " 打开失败，请稍后重试！" << endl;
+#endif // DEBUG
+	}
 }
 
 // 播放音乐
 void MusicData::playMusic()
 {
+#ifdef DEBUG
+	wcout.imbue(std::locale("", LC_CTYPE));
+#endif // DEBUG
+
 	if (musicMci.play())
 	{
+#ifdef DEBUG
+		cout << "音乐 ";
+		wcout << nowMusicName;
+		cout << " 播放成功！" << endl;
+#endif // DEBUG
+
 		status = 1;
 	}
 	else
 	{
-		cout << "音乐";
+#ifdef DEBUG
+		cout << "音乐 ";
 		wcout << nowMusicName;
-		cout << "播放失败！" << endl;
+		cout << " 播放失败！" << endl;
+#endif // DEBUG
+
 		status = 0;
 	}
 }
@@ -210,40 +238,85 @@ void MusicData::playMusic()
 // 暂停播放
 void MusicData::pauseMusic()
 {
+#ifdef DEBUG
+	wcout.imbue(std::locale("", LC_CTYPE));
+#endif // DEBUG
+
 	if (status)
 	{
 		if (musicMci.pause())
 		{
-			cout << "音乐已暂停！" << endl;
+#ifdef DEBUG
+			cout << "音乐 ";
+			wcout << nowMusicName;
+			cout << " 已暂停！" << endl;
+#endif // DEBUG
+
 			status = 2;
 		}
 		else
-			cout << "音乐暂停失败！" << endl;
+		{
+#ifdef DEBUG
+			cout << "音乐 ";
+			wcout << nowMusicName;
+			cout << " 暂停失败！" << endl;
+#endif // DEBUG
+		}
 	}
 }
 
 // 停止播放
 void MusicData::stopMusic()
 {
+#ifdef DEBUG
+	wcout.imbue(std::locale("", LC_CTYPE));
+#endif // DEBUG
+
 	if (musicMci.stop())
 	{
-		cout << "音乐已停止！" << endl;
+#ifdef DEBUG
+		cout << "音乐 ";
+		wcout << nowMusicName;
+		cout << " 已停止！" << endl;
+#endif // DEBUG
+
 		status = 0;
 	}
 	else
-		cout << "音乐停止失败！" << endl;
+	{
+#ifdef DEBUG
+		cout << "音乐 ";
+		wcout << nowMusicName;
+		cout << " 停止失败！" << endl;
+#endif // DEBUG
+	}
 }
 
 // 关闭音乐
 void MusicData::closeMusic()
 {
+#ifdef DEBUG
+	wcout.imbue(std::locale("", LC_CTYPE));
+#endif // DEBUG
+
 	if (musicMci.close())
 	{
-		cout << "音乐已关闭！" << endl;
+#ifdef DEBUG
+		cout << "音乐 ";
+		wcout << nowMusicName;
+		cout << " 已关闭！" << endl;
+#endif // DEBUG
+
 		status = 0;
 	}
 	else
-		cout << "音乐关闭失败！" << endl;
+	{
+#ifdef DEBUG
+		cout << "音乐 ";
+		wcout << nowMusicName;
+		cout << " 关闭失败！" << endl;
+#endif // DEBUG
+	}
 }
 
 // 获取音乐当前播放时间
@@ -254,11 +327,16 @@ int MusicData::getPlayerBackTimeMusic()
 		DWORD playTime = 0;
 		if (!musicMci.getPlayBackTime(playTime))
 		{
+#ifdef DEBUG
 			cout << "获取播放时长失败！" << endl;
+#endif // DEBUG
+
 			return 0;
 		}
 		return playTime / 1000;
 	}
+
+	return 0;
 }
 
 // 获取音乐总播放时间
@@ -269,11 +347,16 @@ int MusicData::getTotalTime()
 		DWORD totalTime = 0;
 		if (!musicMci.getMusicTime(totalTime))
 		{
+#ifdef DEBUG
 			cout << "获取总时长失败！" << endl;
+#endif // DEBUG
+
 			return 0;
 		}
 		return totalTime / 1000;
 	}
+
+	return 0;
 }
 
 
@@ -313,50 +396,46 @@ void MusicData::getFilePath()
 	}
 	else
 	{
-		wFilePath(fPath);
+		rFilePath(fPath);
 	}
 }
 
 // 获取特定格式的文件名    
 void MusicData::findMusicName(const string& path)
 {
-	long  hFile = 0;																					// 文件句柄  64位下long 改为 intptr_t
-	struct _finddata_t fileinfo;																		//	文件信息 
-	string p;
-	if ((hFile = _findfirst(p.assign(path).append("\\*").c_str(), &fileinfo)) != -1)					// 查找所有文件
+	_finddata_t fileinfo;															// 文件信息
+	auto hFile = _findfirst((path + "\\*." + musicFormat).c_str(), &fileinfo);		// 查找当前文件夹是否存在指定格式文件
+	if (hFile != -1)																// 如果该文件夹下存在指定格式文件
 	{
 		do
 		{
-			if ((fileinfo.attrib & _A_SUBDIR))															// 判断是否为文件夹
-			{
-				if (strcmp(&fileinfo.name[0], ".") != 0 && strcmp(&fileinfo.name[0], "..") != 0)		// 文件夹名中不含"."和".."
-				{
-					findMusicName(p.assign(path).append("\\").append(&fileinfo.name[0]));				// 递归遍历文件夹
-				}
-			}
-			else
-			{
-				string suffix(&fileinfo.name[0]);
-				if (suffix.size() > musicFormat.size())
-					suffix = suffix.substr(suffix.size() - musicFormat.size());
-				if (suffix == musicFormat)
-				{
-					musicPathName.push_back(p.assign(path).append("\\").append(&fileinfo.name[0]));		// 是文件，储存文件名
+			string str = fileinfo.name;
+			musicPathName.push_back(path + "\\" + str);								// 写入音乐全路径名
+			musicName.push_back(stringTowstring(str.substr(0, str.size() - musicFormat.size() - 1)));	// 写入音乐名
+		} while (_findnext(hFile, &fileinfo) == 0);
+	}
 
-					string temp(&fileinfo.name[0]);
-					temp.assign(temp.substr(0, temp.size() - musicFormat.size() - 1));					// 截取出音乐名
-					musicName.push_back(stringTowstring(temp));											// 写入
+	hFile = _findfirst((path + "\\*").c_str(), &fileinfo);							// 查找子文件夹，查找所有文件
+	if (hFile != -1)
+	{
+		do
+		{
+			if ((fileinfo.attrib & _A_SUBDIR))										// 判断是否为文件夹
+			{
+				if (fileinfo.name[0] != '.')										// 文件夹名中不含"."和".."
+				{
+					findMusicName(path + "\\" + fileinfo.name);						// 递归遍历文件夹
 				}
 			}
 		} while (_findnext(hFile, &fileinfo) == 0);
-		_findclose(hFile);
 	}
+	_findclose(hFile);
 }
 
 // 将filePath写入文件filePath.ad
 void MusicData::wFilePath(fstream& file)
 {
-	file << filePath << endl;
+	file << filePath;
 }
 
 // 将文件filePath.ad读取到filePath
@@ -370,7 +449,7 @@ void MusicData::rFilePath(fstream& file)
 		cout << "文件路径设置为默认！" << endl;
 	}
 	else
-		filePath = std::move(temp);
+		filePath = temp;
 }
 
 
@@ -378,24 +457,32 @@ void MusicData::rFilePath(fstream& file)
 void MusicData::wFileMusic(fstream& file)
 {
 	if (!musicPathName.empty())
-		for (auto& x : musicPathName)
-			file << x << endl;
-	cout << "文件music.mn写入完毕！" << endl;
+	{
+		const int n = musicPathName.size();
+		file << musicPathName.at(0);
+		for (int i = 1; i < n; ++i)
+			file << "\n" << musicPathName.at(i);
+		cout << "文件music.mn写入完毕！" << endl;
+	}
+	else
+		cout << "musicPathName为空！" << endl;
 }
 
 // 从music.mn读取到musicPathName和musicName中
 void MusicData::rFileMusic(fstream& file)
 {
 	string s;
-	do
+	if (file.eof())
+		cout << "文件music.mn为空！" << endl;
+
+	while (!file.eof())
 	{
 		getline(file, s);
-		musicPathName.push_back(s);
-		s.assign(s.substr(s.rfind("\\") + 1, s.size() - s.rfind("\\") - 1 - musicFormat.size() - 1));	// 截取出音乐名
-
-		musicName.push_back(stringTowstring(s));														// 写入
-
-	} while (!file.eof());
+		musicPathName.push_back(s);												// 写入音乐全路径名
+		const auto pos = s.rfind("\\");
+		s = s.substr(pos + 1, s.size() - pos - 1 - musicFormat.size() - 1);		// 截取出音乐名
+		musicName.push_back(stringTowstring(s));								// 写入音乐名
+	}
 	cout << "文件musci.mn读取完毕！" << endl;
 }
 
@@ -406,8 +493,10 @@ void MusicData::setMusicVolume(size_t vol)
 	{
 		if (musicMci.setVolume(vol))
 			volume = vol;
+#ifdef DEBUG
 		else
 			cout << "音量设置失败！" << endl;
+#endif // DEBUG
 	}
 	else
 	{
@@ -459,15 +548,18 @@ MusicData::MusicData()
 		findMusicName(filePath);
 		wFileMusic(file);
 	}
+	else
+	{
+		rFileMusic(file);						// 若文件存在，直接读取其内容
+	}
 
-	rFileMusic(file);
 	file.close();
 	nowMusicName = L"";
 
-	if (!musicPathName.empty())
-		musicPathName.pop_back();																		// 删除最后一个空白行
+	if (!musicPathName.empty() && musicPathName.back() == "")
+		musicPathName.pop_back();											// 删除最后一个空白行
 
-	if (!musicName.empty())
+	if (!musicName.empty() && musicName.back() == L"")
 		musicName.pop_back();
 }
 
@@ -704,7 +796,12 @@ void GuiMusicPlayer::drawPlayInformation()
 GuiMusicPlayer::GuiMusicPlayer()
 {
 	srand(time(nullptr) & 0xffffffff);
-	initgraph(WIDTH, HEIGHT);
+	initgraph(WIDTH, HEIGHT
+#ifdef DEBUG
+		, SHOWCONSOLE
+#endif
+	
+	);
 
 	setbkcolor(WHITE);													// 设置填充色 白色
 	loadimage(&img, L"background.jpg",WIDTH,HEIGHT);					// 加载背景图片
@@ -735,7 +832,7 @@ void GuiMusicPlayer::choose()
 				if (m0.mkLButton)
 					break;
 			
-			if (bList && m0.x > 260 && m0.x < WIDTH && m0.y>40 && m0.y < HEIGHT - 60)				// 鼠标在播放列表
+			if (bList && m0.x > 260 && m0.x < WIDTH && m0.y>40 && m0.y < HEIGHT - 60)		// 鼠标在播放列表
 			{
 				if (m0.mkLButton)															// 左键按下
 				{
@@ -808,6 +905,9 @@ void GuiMusicPlayer::choose()
 				else if (m0.x >= WIDTH / 2 - 65 && m0.x <= WIDTH / 2 - 48 &&
 					m0.y >= HEIGHT - 38 && m0.y <= HEIGHT - 22)	// 上一曲
 				{
+					if (musicData.musicPathName.empty())		// 无歌曲，跳过
+						continue;
+
 					if (musicData.status)																		// 是否需要关闭音乐
 						musicData.closeMusic();
 
@@ -823,6 +923,9 @@ void GuiMusicPlayer::choose()
 				else if (m0.x >= WIDTH / 2 + 48 && m0.x <= WIDTH / 2 + 65 &&
 					m0.y >= HEIGHT - 38 && m0.y <= HEIGHT - 22)	// 下一曲
 				{
+					if (musicData.musicPathName.empty())		// 无歌曲，跳过
+						continue;
+
 					if (musicData.status)
 						musicData.closeMusic();
 
