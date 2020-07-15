@@ -46,15 +46,16 @@ private:
 
 public:
 	MusicMCI()noexcept;										// 默认构造函数
-	BOOL open(LPCWSTR strSongPath)noexcept;					// 打开音乐
-	BOOL play()noexcept;									// 播放音乐
-	BOOL pause()noexcept;									// 暂停音乐
-	BOOL stop()noexcept;									// 停止播放
-	BOOL close()noexcept;									// 关闭音乐
-	BOOL getPlayBackTime(DWORD& pos)noexcept;				// 获取播放时间
-	BOOL getMusicTime(DWORD& time)noexcept;					// 获取音乐总时长
-	BOOL setVolume(size_t nVolumeValue)noexcept;			// 设置音量大小
-	BOOL setStart(size_t start)noexcept;					// 设置播放位置
+	virtual ~MusicMCI();									// 虚析构函数
+	bool open(LPCWSTR strSongPath)noexcept;					// 打开音乐
+	bool play()noexcept;									// 播放音乐
+	bool pause()noexcept;									// 暂停音乐
+	bool stop()noexcept;									// 停止播放
+	bool close()noexcept;									// 关闭音乐
+	bool getCurrentTime(DWORD& pos)noexcept;				// 获取当前播放时间
+	bool getTotalTime(DWORD& time)noexcept;					// 获取音乐总时长
+	bool setVolume(size_t nVolumeValue)noexcept;			// 设置音量大小
+	bool setStartTime(size_t start)noexcept;				// 设置播放位置
 };
 
 
@@ -63,7 +64,7 @@ public:
  *              class MusicData                 *
  * 数据操作层                                   *
  * 对相应的数据进行操作                         *
- * 并于MusicMCI和CmdMusicPlayer进行交互            *
+ * 并于MusicMCI和CmdMusicPlayer进行交互         *
  ***********************************************/
 
 class MusicData
@@ -75,7 +76,7 @@ private:
 	vector<string> musicPathName;							// 存储全路径音乐文件名
 	vector<wstring> musicName;								// 存储音乐文件名
 	MusicMCI musicMci;										// 执行音乐播放操作的对象
-	size_t status = 0;										// 播放状态 0未播放 1正在播放 2暂停播放 //3播放完毕
+	size_t status = 0;										// 播放状态 0未播放 1正在播放 2暂停播放 3播放完毕
 	size_t volume = 500;									// 当前音量大小
 	size_t number = 0;										// 正在操作的音乐编号
 	size_t mode = 2;										// 音乐播放模式 0单个播放 1顺序播放(列表循环) 2随机播放
@@ -85,9 +86,10 @@ private:
 	void pauseMusic();										// 暂停播放
 	void stopMusic();										// 停止播放
 	void closeMusic();										// 关闭音乐
-	void setMusicVolume(size_t vol);						// 设置音乐
-	int getPlayerBackTimeMusic();							// 获取当前播放音乐的当前播放时间
-	int getTotalTime();										// 获取当前播放音乐的总时间
+	void setMusicVolume(size_t vol);						// 设置音量大小
+	bool setMusicStartTime(size_t start);					// 设置播放位置
+	int getMusicCurrentTime();								// 获取当前播放音乐的当前播放时间
+	int getMusicTotalTime();								// 获取当前播放音乐的总时间
 
 	wstring stringTowstring(const string& str);				// string转wstring
 	void getFilePath();										// 获取搜索路径

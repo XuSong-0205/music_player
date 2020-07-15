@@ -13,9 +13,14 @@ MusicMCI::MusicMCI()noexcept
 	nDeviceID = -1;
 }
 
+MusicMCI::~MusicMCI()
+{
+	if (nDeviceID == -1) this->close();
+}
+
 // 打开文件
-// 成功返回非零值，失败返回0
-BOOL MusicMCI::open(LPCWSTR strSongPath)noexcept
+// 成功返回 true，失败返回 false
+bool MusicMCI::open(LPCWSTR strSongPath)noexcept
 {
 	MCI_OPEN_PARMS mciOP;
 
@@ -26,74 +31,77 @@ BOOL MusicMCI::open(LPCWSTR strSongPath)noexcept
 	if (dwReturn == 0)
 	{
 		nDeviceID = mciOP.wDeviceID;
-		return TRUE;
+		return true;
 	}
 	else
 	{
 		nDeviceID = -1;
-		return FALSE;
+		return false;
 	}
 }
 
 // 播放
 // 成功返回非零值，失败返回0
-BOOL MusicMCI::play()noexcept
+bool MusicMCI::play()noexcept
 {
 	MCI_PLAY_PARMS mciPP{};
 
 	const DWORD dwReturn = mciSendCommand(nDeviceID, MCI_PLAY,
 		MCI_NOTIFY, (DWORD)static_cast<LPVOID>(&mciPP));
 	if (dwReturn == 0)
-		return TRUE;
+		return true;
 	else
-		return FALSE;
+		return false;
 }
 
 // 暂停播放
-// 成功返回非零值，失败返回0
-BOOL MusicMCI::pause()noexcept
+// 成功返回 true，失败返回 false
+bool MusicMCI::pause()noexcept
 {
 	MCI_GENERIC_PARMS mciGP{};
 
 	const DWORD dwReturn = mciSendCommand(nDeviceID, MCI_PAUSE,
 		MCI_NOTIFY | MCI_WAIT, (DWORD)static_cast<LPVOID>(&mciGP));
 	if (dwReturn == 0)
-		return TRUE;
+		return true;
 	else
-		return FALSE;
+		return false;
 }
 
 // 停止播放并使进度返回到开头
-// 成功返回非零值，失败返回0
-BOOL MusicMCI::stop()noexcept
+// 成功返回 true，失败返回 false
+bool MusicMCI::stop()noexcept
 {
 	MCI_SEEK_PARMS mciSP{};
 
 	const DWORD dwReturn = mciSendCommand(nDeviceID, MCI_SEEK,
 		MCI_WAIT | MCI_NOTIFY | MCI_SEEK_TO_START, (DWORD)static_cast<LPVOID>(&mciSP));
 	if (dwReturn == 0)
-		return TRUE;
+		return true;
 	else
-		return FALSE;
+		return false;
 }
 
 // 关闭MCI设备
-// 成功返回非零值，失败返回0
-BOOL MusicMCI::close()noexcept
+// 成功返回 true，失败返回 false
+bool MusicMCI::close()noexcept
 {
 	MCI_GENERIC_PARMS mciGP{};
 
 	const DWORD dwReturn = mciSendCommand(nDeviceID, MCI_CLOSE,
 		MCI_NOTIFY | MCI_WAIT, (DWORD)static_cast<LPVOID>(&mciGP));
 	if (dwReturn == 0)
-		return TRUE;
+	{
+		nDeviceID = -1;
+		return true;
+	}
 	else
-		return FALSE;
+		return false;
 }
 
 // 获得当前播放进度，pos以ms为单位
-// 成功返回非零值，失败返回0
-BOOL MusicMCI::getPlayBackTime(DWORD& pos)noexcept
+// 成功返回 true，失败返回 false
+bool MusicMCI::getCurrentTime(DWORD& pos)noexcept
 {
 	MCI_STATUS_PARMS mciSP{};
 
@@ -103,18 +111,18 @@ BOOL MusicMCI::getPlayBackTime(DWORD& pos)noexcept
 	if (dwReturn == 0)
 	{
 		pos = mciSP.dwReturn;
-		return TRUE;
+		return true;
 	}
 	else
 	{
 		pos = 0;
-		return FALSE;
+		return false;
 	}
 }
 
 // 获取音乐总时长，time以ms为单位
-// 成功返回TRUE，失败返回FALSE
-BOOL MusicMCI::getMusicTime(DWORD& time)noexcept
+// 成功返回 true，失败返回 false
+bool MusicMCI::getTotalTime(DWORD& time)noexcept
 {
 	MCI_STATUS_PARMS mciSP{};
 
@@ -124,18 +132,18 @@ BOOL MusicMCI::getMusicTime(DWORD& time)noexcept
 	if (dwReturn == 0)
 	{
 		time = mciSP.dwReturn;
-		return TRUE;
+		return true;
 	}
 	else
 	{
 		time = 0;
-		return FALSE;
+		return false;
 	}
 }
 
-// 音量设定，音量值范围在0到1000
-// 成功返回非零值，失败返回0
-BOOL MusicMCI::setVolume(size_t nVolumeValue)noexcept
+// 设置音量大小，音量值范围在0到1000
+// 成功返回 true，失败返回 false
+bool MusicMCI::setVolume(size_t nVolumeValue)noexcept
 {
 	if (nVolumeValue > 1000)
 	{
@@ -152,9 +160,31 @@ BOOL MusicMCI::setVolume(size_t nVolumeValue)noexcept
 	const DWORD dwReturn = mciSendCommand(nDeviceID, MCI_SETAUDIO,
 		MCI_DGV_SETAUDIO_VALUE | MCI_DGV_SETAUDIO_ITEM, (DWORD)static_cast<LPVOID>(&mciDSP));
 	if (dwReturn == 0)
-		return TRUE;
+		return true;
 	else
-		return FALSE;
+		return false;
+}
+
+// 设置播放起始位置
+// 成功返回 true，失败返回 false
+bool MusicMCI::setStartTime(size_t start_time) noexcept
+{
+	DWORD end_time = 0;
+	this->getTotalTime(end_time);
+
+	if (start_time > end_time)
+		return false;
+
+	MCI_PLAY_PARMS mciPlay{};
+	mciPlay.dwFrom = start_time;
+	mciPlay.dwTo   = end_time;
+	const DWORD dwReturn = mciSendCommand(nDeviceID, MCI_PLAY,
+		MCI_TO | MCI_FROM, (DWORD)static_cast<LPVOID>(&mciPlay));
+
+	if (dwReturn == 0)
+		return true;
+	else
+		return false;
 }
 
 
@@ -319,13 +349,52 @@ void MusicData::closeMusic()
 	}
 }
 
+// 设置音乐音量
+void MusicData::setMusicVolume(size_t vol)
+{
+	if (status)
+	{
+		if (musicMci.setVolume(vol))
+			volume = vol;
+#ifdef DEBUG
+		else
+			cout << "音量设置失败！" << endl;
+#endif // DEBUG
+	}
+	else
+	{
+		volume = vol;
+	}
+}
+
+// 设置播放位置
+bool MusicData::setMusicStartTime(size_t start_time)
+{
+	if (status)
+	{
+		if (musicMci.setStartTime(start_time))
+		{
+			return true;
+		}
+		else
+		{
+#ifdef DEBUG
+			cout << "设置播放位置失败！" << endl;
+#endif // DEBUG
+			return false;
+		}
+	}
+
+	return false;
+}
+
 // 获取音乐当前播放时间
-int MusicData::getPlayerBackTimeMusic()
+int MusicData::getMusicCurrentTime()
 {
 	if (status)
 	{
 		DWORD playTime = 0;
-		if (!musicMci.getPlayBackTime(playTime))
+		if (!musicMci.getCurrentTime(playTime))
 		{
 #ifdef DEBUG
 			cout << "获取播放时长失败！" << endl;
@@ -340,12 +409,12 @@ int MusicData::getPlayerBackTimeMusic()
 }
 
 // 获取音乐总播放时间
-int MusicData::getTotalTime()
+int MusicData::getMusicTotalTime()
 {
 	if (status)
 	{
 		DWORD totalTime = 0;
-		if (!musicMci.getMusicTime(totalTime))
+		if (!musicMci.getTotalTime(totalTime))
 		{
 #ifdef DEBUG
 			cout << "获取总时长失败！" << endl;
@@ -486,24 +555,6 @@ void MusicData::rFileMusic(fstream& file)
 	cout << "文件musci.mn读取完毕！" << endl;
 }
 
-// 设置音乐音量
-void MusicData::setMusicVolume(size_t vol)
-{
-	if (status)
-	{
-		if (musicMci.setVolume(vol))
-			volume = vol;
-#ifdef DEBUG
-		else
-			cout << "音量设置失败！" << endl;
-#endif // DEBUG
-	}
-	else
-	{
-		volume = vol;
-	}
-}
-
 // 删除歌曲
 void MusicData::deleteMusicData(vector<int>& vec)		
 {
@@ -579,6 +630,8 @@ MusicData::~MusicData()
 * GuiMusicPlayer private method                               *
 **************************************************************/
 
+// 查找背景图片是否存在
+// 查找到返回 true，否则返回 false
 bool GuiMusicPlayer::findBgPicture()noexcept
 {
 	long hFile = 0;
@@ -589,6 +642,7 @@ bool GuiMusicPlayer::findBgPicture()noexcept
 	return false;
 }
 
+// 画程序的整体 ui 界面
 void GuiMusicPlayer::ui()
 {
 	constexpr COLORREF c0 = 0XAA00AA;
@@ -639,6 +693,7 @@ void GuiMusicPlayer::ui()
 	drawStartPause();
 }
 
+// 画 开始/暂停 按钮
 void GuiMusicPlayer::drawStartPause()
 {
 	setfillcolor(0XAA00AA);
@@ -658,6 +713,7 @@ void GuiMusicPlayer::drawStartPause()
 	}
 }
 
+// 画显示各种信息
 void GuiMusicPlayer::drawPlayInformation()
 {
 	settextcolor(0XAA00AA);																			// 字体颜色
@@ -692,12 +748,12 @@ void GuiMusicPlayer::drawPlayInformation()
 
 	if (bList)																						// 是否显示播放列表
 	{
-		if (!musicData.musicName.empty())																// 显示播放列表
+		if (!musicData.musicName.empty())															// 显示播放列表
 		{
 			for (int i = 0; i <= 12; ++i)
 			{
 				wstring s0;
-				if (musicData.musicName.at(i + numRange.at(0)).size() > 60)								// 超出一定长度的名字只显示一部分
+				if (musicData.musicName.at(i + numRange.at(0)).size() > 60)							// 超出一定长度的名字只显示一部分
 					s0 = musicData.musicName.at(i + numRange.at(0)).substr(0, 60) + L"...";
 				else
 					s0 = musicData.musicName.at(i + numRange.at(0));
@@ -732,8 +788,8 @@ void GuiMusicPlayer::drawPlayInformation()
 	{
 		if (musicData.status)
 		{
-			t0 = musicData.getPlayerBackTimeMusic();
-			t1 = musicData.getTotalTime();
+			t0 = musicData.getMusicCurrentTime();
+			t1 = musicData.getMusicTotalTime();
 		}
 		wstring s0;
 		if (t0 / 60 < 10)																			// 当前时长
@@ -815,6 +871,7 @@ GuiMusicPlayer::~GuiMusicPlayer()
 	closegraph();
 }
 
+// 各种功能的选择，实现
 void GuiMusicPlayer::choose()
 {
 	ui();
@@ -829,10 +886,12 @@ void GuiMusicPlayer::choose()
 			FlushMouseMsgBuffer();
 
 			if (m0.x >= WIDTH - 40 && m0.x <= WIDTH - 10 && m0.y >= 10 && m0.y <= 25)		// 按退出键退出
-				if (m0.mkLButton)
-					break;
+			{
+				if (m0.mkLButton) break;
+			}
 			
-			if (bList && m0.x > 260 && m0.x < WIDTH && m0.y>40 && m0.y < HEIGHT - 60)		// 鼠标在播放列表
+			// 播放列表操作
+			if (bList && m0.x > 260 && m0.x < WIDTH && m0.y > 40 && m0.y < HEIGHT - 80)		// 鼠标在播放列表
 			{
 				if (m0.mkLButton)															// 左键按下
 				{
@@ -879,9 +938,19 @@ void GuiMusicPlayer::choose()
 			}
 
 
+			// 其它操作
 			if (m0.mkLButton)
 			{
-				if (pow(m0.x - WIDTH / 2, 2) + pow(m0.y - HEIGHT + 30, 2) <= 400)			// 是否在圆形播放，暂停按钮内
+				if (m0.y >= HEIGHT - 68 && m0.y <= HEIGHT - 52 &&
+					m0.x >= 0 && m0.x <= WIDTH)												// 音乐进度条
+				{
+					const double k = m0.x / (WIDTH + 0.0);									// 计算出进度条比列
+					const size_t start_time = static_cast<size_t>
+											(k * musicData.getMusicTotalTime() * 1000);		// 计算处新的音乐播放时间
+					if (musicData.setMusicStartTime(start_time))							// 设置播放位置
+						musicData.status = 1;												// 设置当前播放状态为 正在播放
+				}
+				else if (pow(m0.x - WIDTH / 2, 2) + pow(m0.y - HEIGHT + 30, 2) <= 400)		// 是否在圆形播放，暂停按钮内
 				{																			// 根据播放状态进行操作
 					if (musicData.status == 0)												// 若未播放
 					{
@@ -941,12 +1010,7 @@ void GuiMusicPlayer::choose()
 				else if (m0.x >= WIDTH / 2 + 300 && m0.x <= WIDTH / 2 + 360 &&
 					m0.y <= HEIGHT - 25 && m0.y >= HEIGHT - 40)		// 播放模式
 				{
-					if (musicData.mode == 0)														// 顺序变更播放模式
-						musicData.mode = 1;
-					else if (musicData.mode == 1)
-						musicData.mode = 2;
-					else if (musicData.mode == 2)
-						musicData.mode = 0;
+					musicData.mode = ++musicData.mode % 3;			// 顺序变更播放模式
 				}
 				else if (m0.x >= 50 && m0.x <= 165 && m0.y >= 175 && m0.y <= 200)
 				{
@@ -956,13 +1020,15 @@ void GuiMusicPlayer::choose()
 		}
 		drawPlayInformation();
 
+		// 得到音乐的播放进度信息
 		static int t0 = 0, t1 = 0;
 		if (musicData.status)
 		{
-			t0 = musicData.getPlayerBackTimeMusic();
-			t1 = musicData.getTotalTime();
+			t0 = musicData.getMusicCurrentTime();
+			t1 = musicData.getMusicTotalTime();
 		}
 
+		// 检查音乐是否播放结束，并作出下一步操作
 		if (musicData.status && t0 == t1)
 		{
 			musicData.closeMusic();
