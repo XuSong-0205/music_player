@@ -429,20 +429,6 @@ int MusicData::getMusicTotalTime()
 }
 
 
-// string转wstring
-wstring MusicData::stringTowstring(const string& str)
-{
-	wstring result;
-	// 获取缓冲区大小，并申请空间，缓冲区大小按字符计算
-	const size_t len = MultiByteToWideChar(CP_ACP, 0, str.c_str(), str.size(), nullptr, 0);
-	vector<TCHAR> buffer(len + 1u);
-	// 多字节编码转换成宽字节编码
-	MultiByteToWideChar(CP_ACP, 0, str.c_str(), str.size(), &buffer.at(0), len);
-	buffer.at(len) = '\0';			// 添加字符串结尾
-	result.append(&buffer.at(0));
-	return result;
-}
-
 // 从文件filePath.ad中读取搜索路径
 void MusicData::getFilePath()
 {
@@ -520,7 +506,6 @@ void MusicData::rFilePath(fstream& file)
 	else
 		filePath = temp;
 }
-
 
 // 将musicPathName写入文件music.mn中
 void MusicData::wFileMusic(fstream& file)
@@ -621,6 +606,21 @@ MusicData::~MusicData()
 }
 
 
+// 非成员函数
+// string转wstring
+wstring stringTowstring(const string& str)
+{
+	wstring result;
+	// 获取缓冲区大小，并申请空间，缓冲区大小按字符计算
+	const size_t len = MultiByteToWideChar(CP_ACP, 0, str.c_str(), str.size(), nullptr, 0);
+	vector<TCHAR> buffer(len + 1u);
+	// 多字节编码转换成宽字节编码
+	MultiByteToWideChar(CP_ACP, 0, str.c_str(), str.size(), &buffer.at(0), len);
+	buffer.at(len) = '\0';			// 添加字符串结尾
+	result.append(&buffer.at(0));
+	return result;
+}
+
 
 /**********************************************************************************************************************
 *  class GuiMusicPlayer                                                                                               *
@@ -642,14 +642,13 @@ bool GuiMusicPlayer::findBgPicture()noexcept
 	return false;
 }
 
-// 画程序的整体 ui 界面
+// 画程序的整体 ui 界面(静态)
 void GuiMusicPlayer::ui()
 {
 	constexpr COLORREF c0 = 0XAA00AA;
 	settextcolor(0X0000AA);																				// 字体颜色
 	settextstyle(15, 0, L"宋体");																		// 字体样式
 	setbkmode(TRANSPARENT);																				// 文字输出背景透明
-	outtextxy(WIDTH - 120, 10, L"设置");
 	outtextxy(WIDTH - 40, 10, L"退出");
 	setlinecolor(0XE8E8E8);
 	line(0, 40, WIDTH, 40);																				// 上边界线
@@ -693,7 +692,7 @@ void GuiMusicPlayer::ui()
 	drawStartPause();
 }
 
-// 画 开始/暂停 按钮
+// 画 开始/暂停 按钮(动态)
 void GuiMusicPlayer::drawStartPause()
 {
 	setfillcolor(0XAA00AA);
@@ -713,13 +712,13 @@ void GuiMusicPlayer::drawStartPause()
 	}
 }
 
-// 画显示各种信息
+// 画显示各种信息(动态)
 void GuiMusicPlayer::drawPlayInformation()
 {
 	settextcolor(0XAA00AA);																			// 字体颜色
 	settextstyle(14, 0, L"宋体");
 	static int ti = 0;
-	static IMAGE i0, i1, i2, i3, i4, i5, i6;
+	static IMAGE i0, i1, i2, i3, i4, i5, i6, i7;
 	if(!ti)																							// 只读取一次该区域
 	{
 		getimage(&i0, 30, HEIGHT - 45, WIDTH / 2 - 100, 20);										// 歌曲名下的背景
@@ -735,6 +734,8 @@ void GuiMusicPlayer::drawPlayInformation()
 		getimage(&i5, 260, 40, 660, 540);															// 播放列表
 
 		getimage(&i6, 130, 180, 50, 20);															// 播放列表字体旁的箭头
+
+		getimage(&i7, WIDTH - 10, 40, WIDTH - 2, HEIGHT - 80);										// 滚动条
 		++ti;
 	}
 		
@@ -745,6 +746,7 @@ void GuiMusicPlayer::drawPlayInformation()
 	putimage(0, HEIGHT - 65, &i4);																	// 进度条
 	putimage(260, 40, &i5);																			// 播放列表
 	putimage(130, 180, &i6);																		// 播放列表箭头
+	putimage(WIDTH - 10, 40, &i7);																	// 滚动条
 
 	if (bList)																						// 是否显示播放列表
 	{
@@ -752,6 +754,8 @@ void GuiMusicPlayer::drawPlayInformation()
 		{
 			for (int i = 0; i <= 12; ++i)
 			{
+				if (i + numRange.at(0) > numRange.at(1)) break;										// 超出显示范围，退出
+
 				wstring s0;
 				if (musicData.musicName.at(i + numRange.at(0)).size() > 60)							// 超出一定长度的名字只显示一部分
 					s0 = musicData.musicName.at(i + numRange.at(0)).substr(0, 60) + L"...";
@@ -759,6 +763,14 @@ void GuiMusicPlayer::drawPlayInformation()
 					s0 = musicData.musicName.at(i + numRange.at(0));
 				outtextxy(260, 40 + 20 + i * 40, s0.c_str());
 			}
+
+			const int length = (HEIGHT - 120) / 11;
+			const double k = numRange.at(0) / (musicData.musicName.size() + 0.0);					// 比列位置
+			const int y1 = static_cast<int>(40 + (HEIGHT - 120) * k) + 4;							// 滚动条的左上角的纵坐标
+			setfillcolor(0XAA00AA);																	// 滚动条颜色，紫色
+			solidcircle(WIDTH - 6, y1, 4);															// 画上半圆
+			solidrectangle(WIDTH - 10, y1, WIDTH - 2, y1 + length);									// 画滚动条
+			solidcircle(WIDTH - 6, y1 + length, 4);													// 画下半圆
 		}
 		else
 			outtextxy(260, 40 + 15, L"列表为空！");
@@ -826,7 +838,7 @@ void GuiMusicPlayer::drawPlayInformation()
 	solidcircle(static_cast<int>(WIDTH * ((t0 + 0.0) / t1)), HEIGHT - 60, 4);						// 画进度条小球
 
 
-	if (musicData.mode == 0)																		// 播放模式
+	if (musicData.mode == 0)																		// 显示播放模式
 		outtextxy(WIDTH / 2 + 300, HEIGHT - 40, L"单曲循环");
 	else if (musicData.mode == 1)
 		outtextxy(WIDTH / 2 + 300, HEIGHT - 40, L"顺序播放");
@@ -859,6 +871,19 @@ GuiMusicPlayer::GuiMusicPlayer()
 	
 	);
 
+	if (musicData.musicName.empty())
+	{
+		numRange = { 0, 0 };
+	}
+	else if (musicData.musicName.size() >= 12)
+	{
+		numRange = { 0, 12 };
+	}
+	else
+	{
+		numRange = { 0, static_cast<int>(musicData.musicName.size() - 1) };
+	}
+
 	setbkcolor(WHITE);													// 设置填充色 白色
 	loadimage(&img, L"background.jpg",WIDTH,HEIGHT);					// 加载背景图片
 	putimage(0, 0, &img);												// 显示背景图片
@@ -872,6 +897,7 @@ GuiMusicPlayer::~GuiMusicPlayer()
 }
 
 // 各种功能的选择，实现
+// 外部调用的接口
 void GuiMusicPlayer::choose()
 {
 	ui();
@@ -891,7 +917,7 @@ void GuiMusicPlayer::choose()
 			}
 			
 			// 播放列表操作
-			if (bList && m0.x > 260 && m0.x < WIDTH && m0.y > 40 && m0.y < HEIGHT - 80)		// 鼠标在播放列表
+			if (bList && m0.x > 260 && m0.x < WIDTH - 20 && m0.y > 40 && m0.y < HEIGHT - 80)// 鼠标在播放列表
 			{
 				if (m0.mkLButton)															// 左键按下
 				{
@@ -937,6 +963,27 @@ void GuiMusicPlayer::choose()
 
 			}
 
+			// 滚动条操作
+			if (bList && m0.x >= WIDTH - 10 && m0.x <= WIDTH - 2 && m0.y > 40 && m0.y < HEIGHT - 80)
+			{
+				if (m0.mkLButton)
+				{
+					const int length = (HEIGHT - 120) / 11;
+					const double k = numRange.at(0) / (musicData.musicName.size() + 0.0);			// 比列位置
+					const int y1 = static_cast<int>(40 + (HEIGHT - 120) * k);						// 滚动条的左上角的纵坐标
+					const int msize = musicData.musicName.size();									// 音乐列表的长度
+					if (m0.y < y1 && numRange.at(0) > 0)											// 上移一个页面
+					{
+						numRange.at(0) = numRange.at(0) - 12 >= 0 ? numRange.at(0) - 12 : 0;
+						numRange.at(1) = numRange.at(0) + 12 < msize ? numRange.at(0) + 12 : msize - 1;
+					}
+					else if (m0.y > y1 + length && numRange.at(1) < msize - 1)	// 下移一个页面
+					{
+						numRange.at(1) = numRange.at(1) + 12 < msize ? numRange.at(1) + 12 : msize - 1;
+						numRange.at(0) = numRange.at(1) - 12 >= 0 ? numRange.at(1) - 12 : 0;
+					}
+				}
+			}
 
 			// 其它操作
 			if (m0.mkLButton)

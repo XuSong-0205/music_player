@@ -16,9 +16,9 @@
 #include <Digitalv.h>
 #pragma comment(lib, "winmm.lib")
 
-#define DEBUG
+// #define DEBUG
 
-using std::cin;
+
 using std::cout;
 using std::wcout;
 using std::cerr;
@@ -91,7 +91,6 @@ private:
 	int getMusicCurrentTime();								// 获取当前播放音乐的当前播放时间
 	int getMusicTotalTime();								// 获取当前播放音乐的总时间
 
-	wstring stringTowstring(const string& str);				// string转wstring
 	void getFilePath();										// 获取搜索路径
 	void findMusicName(const string& path);					// 寻找音乐文件
 	void wFilePath(fstream& file);							// 将filePath写入文件filePath.ad
@@ -106,6 +105,8 @@ public:
 	friend class CmdMusicPlayer;
 	friend class GuiMusicPlayer;
 };
+
+wstring stringTowstring(const string& str);					// string 转 wstring
 
 
 
@@ -122,14 +123,14 @@ private:
 	MusicData musicData;
 	IMAGE img;
 	bool bList = false;
-	array<int, 2> numRange{ 0,12 };							// 播放列表显示的音乐范围 numRange[0]指向显示在音乐列表musicData.musicName的开始
+	array<int, 2> numRange;									// 播放列表显示的音乐范围 numRange[0]指向显示在音乐列表musicData.musicName的开始
 															// numRange[1]指向musicData.musicName在播放列表的最后一个
 	static const int WIDTH = 960;
 	static const int HEIGHT = 640;
 
 
 	bool findBgPicture()noexcept;							// 查找是否存在背景图片
-	void ui();
+	void ui();												// 画静态 ui
 	void drawStartPause();									// 画开始暂停键
 	void drawPlayInformation();								// 显示播放信息
 public:

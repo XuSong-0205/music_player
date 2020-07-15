@@ -2,7 +2,7 @@
 
 int main()
 {
-	GuiMusicPlayer gmp0;
-	gmp0.choose();
+	GuiMusicPlayer gmp;
+	gmp.choose();
 	return 0;
 }
