@@ -941,7 +941,15 @@ void GuiMusicPlayer::choose()
 					}
 					else if (musicData.status == 2)											// 暂停播放
 					{
-						musicData.playMusic();												// 继续
+						if (musicData.number == ty)											// 若是刚才的音乐
+						{
+							musicData.playMusic();											// 继续播放
+						}
+						else																// 若不是刚才的音乐
+						{
+							musicData.closeMusic();											// 关闭原来的音乐
+							musicData.openMusic(ty);										// 打开新的音乐
+						}
 					}
 				}
 

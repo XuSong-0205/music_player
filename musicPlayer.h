@@ -77,7 +77,7 @@ private:
 	vector<wstring> musicName;								// 存储音乐文件名
 	MusicMCI musicMci;										// 执行音乐播放操作的对象
 	size_t status = 0;										// 播放状态 0未播放 1正在播放 2暂停播放 3播放完毕
-	size_t volume = 500;									// 当前音量大小
+	size_t volume = 400;									// 当前音量大小
 	size_t number = 0;										// 正在操作的音乐编号
 	size_t mode = 2;										// 音乐播放模式 0单个播放 1顺序播放(列表循环) 2随机播放
 
