@@ -435,18 +435,17 @@ void MusicData::getFilePath()
 	fstream fPath("filePath.ad", ios_base::in);
 	if (!fPath.is_open())
 	{
-		cerr << "文件filePath.ad打开失败，此文件可能不存在！" << endl;
+#ifdef DEBUG
+		cerr << "文件filePath.ad打开失败！" << endl;
 		cerr << "程序将尝试新建此文件!" << endl;
+#endif // DEBUG
 
 		fPath.open("filePath.ad", ios_base::in | ios_base::out | ios_base::trunc);
-		if (!fPath.is_open())
+		if (fPath.is_open())
 		{
-			cerr << "文件filePath.ad创建失败！，程序可能遇到了一些问题！" << endl;
-			cerr << "请稍后重试！" << endl;
-		}
-		else
-		{
+#ifdef DEBUG
 			cout << "文件filePath.ad创建成功！" << endl;
+#endif // DEBUG
 		}
 	}
 	else
@@ -500,8 +499,10 @@ void MusicData::rFilePath(fstream& file)
 	getline(file, temp);
 	if (temp.empty() || temp.at(0) == '\n')
 	{
+#ifdef DEBUG
 		cout << "文件内容为空！" << endl;
 		cout << "文件路径设置为默认！" << endl;
+#endif // DEBUG
 	}
 	else
 		filePath = temp;
@@ -516,10 +517,14 @@ void MusicData::wFileMusic(fstream& file)
 		file << musicPathName.at(0);
 		for (int i = 1; i < n; ++i)
 			file << "\n" << musicPathName.at(i);
+#ifdef DEBUG
 		cout << "文件music.mn写入完毕！" << endl;
+#endif // DEBUG
 	}
+#ifdef DEBUG
 	else
 		cout << "musicPathName为空！" << endl;
+#endif // DEBUG
 }
 
 // 从music.mn读取到musicPathName和musicName中
@@ -527,7 +532,11 @@ void MusicData::rFileMusic(fstream& file)
 {
 	string s;
 	if (file.eof())
+	{
+#ifdef DEBUG
 		cout << "文件music.mn为空！" << endl;
+#endif // DEBUG
+	}
 
 	while (!file.eof())
 	{
@@ -537,7 +546,9 @@ void MusicData::rFileMusic(fstream& file)
 		s = s.substr(pos + 1, s.size() - pos - 1 - musicFormat.size() - 1);		// 截取出音乐名
 		musicName.push_back(stringTowstring(s));								// 写入音乐名
 	}
+#ifdef DEBUG
 	cout << "文件musci.mn读取完毕！" << endl;
+#endif // DEBUG
 }
 
 // 删除歌曲
@@ -563,34 +574,34 @@ MusicData::MusicData()
 	srand(time(nullptr) & 0xffffffff);
 	getFilePath();																// 初始化搜索的文件路径
 
+#ifdef DEBUG
 	cout << "文件搜索路径为：" << filePath << endl;
+#endif // DEBUG
+
 	fstream file("music.mn", ios_base::in);
 	if (!file.is_open())
 	{
+#ifdef DEBUG
 		cerr << "文件music.mn打开失败，此文件可能不存在" << endl;
 		cerr << "程序将尝试新建此文件，并初始化文件内容" << endl;
+#endif // DEBUG
 
-		file.open("music.mn", ios_base::out);
-		if (!file.is_open())
+		file.open("music.mn", ios_base::out);			// 新建文件
+		if (file.is_open())
 		{
-			cerr << "文件music.mn创建失败！" << endl;
-			cerr << "程序可能遇到了一些问题！" << endl;
-			cerr << "程序即将退出！" << endl;
-			system("pause");
-			exit(0);
-		}
+#ifdef DEBUG
+			cout << "文件music.mn创建成功！" << endl;
+#endif // DEBUG
 
-		cout << "文件music.mn创建成功！" << endl;
-		findMusicName(filePath);
-		wFileMusic(file);
+			findMusicName(filePath);
+			wFileMusic(file);
+		}
 	}
 	else
 	{
-		rFileMusic(file);						// 若文件存在，直接读取其内容
+		rFileMusic(file);								// 若文件存在，直接读取其内容
 	}
-
-	file.close();
-	nowMusicName = L"";
+	file.close();										// 关闭文件
 
 	if (!musicPathName.empty() && musicPathName.back() == "")
 		musicPathName.pop_back();											// 删除最后一个空白行
@@ -645,6 +656,12 @@ bool GuiMusicPlayer::findBgPicture()noexcept
 // 画程序的整体 ui 界面(静态)
 void GuiMusicPlayer::ui()
 {
+	setbkcolor(WHITE);													// 设置填充色 白色
+	loadimage(&img, L"background.jpg", WIDTH, HEIGHT);					// 加载背景图片
+	putimage(0, 0, &img);												// 显示背景图片
+	if (!findBgPicture())												// 查询是否存在背景图片
+		cleardevice();													// 使用背景色清空画面
+
 	constexpr COLORREF c0 = 0XAA00AA;
 	settextcolor(0X0000AA);																				// 字体颜色
 	settextstyle(15, 0, L"宋体");																		// 字体样式
@@ -883,12 +900,6 @@ GuiMusicPlayer::GuiMusicPlayer()
 	{
 		numRange = { 0, static_cast<int>(musicData.musicName.size() - 1) };
 	}
-
-	setbkcolor(WHITE);													// 设置填充色 白色
-	loadimage(&img, L"background.jpg",WIDTH,HEIGHT);					// 加载背景图片
-	putimage(0, 0, &img);												// 显示背景图片
-	if (!findBgPicture())												// 查询是否存在背景图片
-		cleardevice();													// 使用背景色清空画面
 }
 
 GuiMusicPlayer::~GuiMusicPlayer()
