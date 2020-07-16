@@ -18,6 +18,11 @@
 
 // #define DEBUG
 
+#ifndef DEBUG
+#pragma comment( linker, "/subsystem:\"windows\" /entry:\"mainCRTStartup\"" )	// 设置入口地址 隐藏cmd窗口
+#endif // 
+
+
 
 using std::cout;
 using std::wcout;
