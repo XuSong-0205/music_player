@@ -641,6 +641,31 @@ wstring stringTowstring(const string& str)
 * GuiMusicPlayer private method                               *
 **************************************************************/
 
+// 私有的构造函数
+GuiMusicPlayer::GuiMusicPlayer()
+{
+	srand(time(nullptr) & 0xffffffff);
+	initgraph(WIDTH, HEIGHT
+#ifdef DEBUG
+		, SHOWCONSOLE
+#endif
+
+	);
+
+	if (musicData.musicName.empty())
+	{
+		numRange = { 0, 0 };
+	}
+	else if (musicData.musicName.size() >= 12)
+	{
+		numRange = { 0, 12 };
+	}
+	else
+	{
+		numRange = { 0, static_cast<int>(musicData.musicName.size() - 1) };
+	}
+}
+
 // 查找背景图片是否存在
 // 查找到返回 true，否则返回 false
 bool GuiMusicPlayer::findBgPicture()noexcept
@@ -878,38 +903,21 @@ void GuiMusicPlayer::drawPlayInformation()
 * GuiMusicPlayer public method                                *
 **************************************************************/
 
-GuiMusicPlayer::GuiMusicPlayer()
-{
-	srand(time(nullptr) & 0xffffffff);
-	initgraph(WIDTH, HEIGHT
-#ifdef DEBUG
-		, SHOWCONSOLE
-#endif
-	
-	);
-
-	if (musicData.musicName.empty())
-	{
-		numRange = { 0, 0 };
-	}
-	else if (musicData.musicName.size() >= 12)
-	{
-		numRange = { 0, 12 };
-	}
-	else
-	{
-		numRange = { 0, static_cast<int>(musicData.musicName.size() - 1) };
-	}
-}
-
+// 析构函数
 GuiMusicPlayer::~GuiMusicPlayer()
 {
 	closegraph();
 }
 
-// 各种功能的选择，实现
-// 外部调用的接口
-void GuiMusicPlayer::choose()
+// 单例模式，返回该类唯一对象的引用
+GuiMusicPlayer& GuiMusicPlayer::singleton()
+{
+	static GuiMusicPlayer gmp;
+	return gmp;
+}
+
+// 外部调用的接口，进入事件循环
+void GuiMusicPlayer::run()
 {
 	ui();
 

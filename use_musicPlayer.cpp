@@ -2,7 +2,7 @@
 
 int main()
 {
-	GuiMusicPlayer gmp;
-	gmp.choose();
+	GuiMusicPlayer& gmp = GuiMusicPlayer::singleton();
+	gmp.run();
 	return 0;
 }

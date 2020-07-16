@@ -107,7 +107,6 @@ public:
 	MusicData();											// 默认构造函数
 	~MusicData();											// 析构函数
 
-	friend class CmdMusicPlayer;
 	friend class GuiMusicPlayer;
 };
 
@@ -125,22 +124,26 @@ wstring stringTowstring(const string& str);					// string 转 wstring
 class GuiMusicPlayer
 {
 private:
-	MusicData musicData;
-	IMAGE img;
-	bool bList = false;
+	MusicData musicData;									// MusicData 的对象
+	IMAGE img;												// 背景图片
+	bool bList = false;										// 列表是否展开
 	array<int, 2> numRange;									// 播放列表显示的音乐范围 numRange[0]指向显示在音乐列表musicData.musicName的开始
 															// numRange[1]指向musicData.musicName在播放列表的最后一个
-	static const int WIDTH = 960;
-	static const int HEIGHT = 640;
+	static const int WIDTH = 960;							// 窗口宽度
+	static const int HEIGHT = 640;							// 窗口高度
 
-
+	GuiMusicPlayer();										// 私有的默认构造函数
 	bool findBgPicture()noexcept;							// 查找是否存在背景图片
 	void ui();												// 画静态 ui
 	void drawStartPause();									// 画开始暂停键
 	void drawPlayInformation();								// 显示播放信息
 public:
-	GuiMusicPlayer();
+	GuiMusicPlayer(const GuiMusicPlayer&) = delete;			// 可移动，禁复制
+	GuiMusicPlayer(GuiMusicPlayer&&) = default;
+	GuiMusicPlayer& operator=(const GuiMusicPlayer&) = delete;
+	GuiMusicPlayer& operator=(GuiMusicPlayer&&) = default;
 	~GuiMusicPlayer();
 
-	void choose();
+	static GuiMusicPlayer& singleton();						// 返回该类唯一对象的引用，单例模式
+	void run();												// 外部调用的接口，进入事件循环
 };
