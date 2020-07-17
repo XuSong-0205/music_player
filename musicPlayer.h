@@ -74,12 +74,12 @@ public:
 class MusicData
 {
 private:
+	MusicMCI musicMci;										// 执行音乐播放操作的对象
 	string filePath;										// 要查找的文件路径
 	string musicFormat = "mp3";								// 要查找的文件格式
 	wstring nowMusicName;									// 正在操作的音乐名
 	vector<string> musicPathName;							// 存储全路径音乐文件名
 	vector<wstring> musicName;								// 存储音乐文件名
-	MusicMCI musicMci;										// 执行音乐播放操作的对象
 	size_t status = 0;										// 播放状态 0未播放 1正在播放 2暂停播放 3播放完毕
 	size_t volume = 400;									// 当前音量大小
 	size_t number = 0;										// 正在操作的音乐编号
