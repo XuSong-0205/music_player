@@ -1,3 +1,11 @@
+/**************************************************************
+ * 作者     : 悠远的苍穹                                      *
+ * QQ       : 2237505658                                      *
+ * Emall    : 2237505658@qq.com                               *
+ * 最后修改 : 2020/7/17                                       *
+ **************************************************************/
+
+
 #pragma once
 #include <iostream>
 #include <fstream>
@@ -15,6 +23,7 @@
 #include <Digitalv.h>
 #pragma comment(lib, "winmm.lib")
 
+// 若需要，请在 Debug 模式下开启该宏，在 Release 模式下注释该宏
 // #define DEBUG
 
 #ifndef DEBUG
