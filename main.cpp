@@ -1,4 +1,4 @@
-#include"musicPlayer.h"
+#include"GuiMusicPlayer.h"
 
 int main()
 {

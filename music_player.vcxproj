@@ -140,18 +140,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="GuiMusicPlayer.h" />
+    <ClInclude Include="MusicData.h" />
+    <ClInclude Include="MusicMCI.h" />
     <ClInclude Include="musicPlayer.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="musicPlayer.cpp" />
+    <ClCompile Include="GuiMusicPlayer.cpp" />
+    <ClCompile Include="MusicData.cpp" />
+    <ClCompile Include="MusicMCI.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="music_player.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\..\..\..\图片\program_icon\i5.ico" />
+    <Image Include="music_player.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
