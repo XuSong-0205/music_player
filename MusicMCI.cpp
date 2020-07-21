@@ -1,13 +1,13 @@
 #include "MusicMCI.h"
 
 
-/**************************************************************************************************************
- *  class MusicMCI                                                                                            *
- **************************************************************************************************************/
+/****************************************************************************************************************
+ *  class MusicMCI																								*
+ ****************************************************************************************************************/
 
-/**************************************************************
- * MusicMci public method                                     *
- **************************************************************/
+/****************************************************************
+ * MusicMci public method										*
+ ****************************************************************/
 
 MusicMCI::MusicMCI()noexcept
 {
@@ -28,7 +28,9 @@ bool MusicMCI::open(LPCWSTR strSongPath)noexcept
 	mciOP.lpstrDeviceType = nullptr;
 	mciOP.lpstrElementName = strSongPath;
 	const DWORD dwReturn = mciSendCommand(0, MCI_OPEN,
-		MCI_OPEN_ELEMENT | MCI_WAIT | MCI_OPEN_SHAREABLE, (DWORD)static_cast<LPVOID>(&mciOP));
+		MCI_OPEN_ELEMENT | MCI_WAIT | MCI_OPEN_SHAREABLE, (DWORD_PTR)(static_cast<LPVOID>(&mciOP)));
+
+
 	if (dwReturn == 0)
 	{
 		nDeviceID = mciOP.wDeviceID;
@@ -48,7 +50,7 @@ bool MusicMCI::play()noexcept
 	MCI_PLAY_PARMS mciPP{};
 
 	const DWORD dwReturn = mciSendCommand(nDeviceID, MCI_PLAY,
-		MCI_NOTIFY, (DWORD)static_cast<LPVOID>(&mciPP));
+		MCI_NOTIFY, (DWORD_PTR)(static_cast<LPVOID>(&mciPP)));
 	if (dwReturn == 0)
 		return true;
 	else
@@ -62,7 +64,7 @@ bool MusicMCI::pause()noexcept
 	MCI_GENERIC_PARMS mciGP{};
 
 	const DWORD dwReturn = mciSendCommand(nDeviceID, MCI_PAUSE,
-		MCI_NOTIFY | MCI_WAIT, (DWORD)static_cast<LPVOID>(&mciGP));
+		MCI_NOTIFY | MCI_WAIT, (DWORD_PTR)(static_cast<LPVOID>(&mciGP)));
 	if (dwReturn == 0)
 		return true;
 	else
@@ -76,7 +78,7 @@ bool MusicMCI::stop()noexcept
 	MCI_SEEK_PARMS mciSP{};
 
 	const DWORD dwReturn = mciSendCommand(nDeviceID, MCI_SEEK,
-		MCI_WAIT | MCI_NOTIFY | MCI_SEEK_TO_START, (DWORD)static_cast<LPVOID>(&mciSP));
+		MCI_WAIT | MCI_NOTIFY | MCI_SEEK_TO_START, (DWORD_PTR)(static_cast<LPVOID>(&mciSP)));
 	if (dwReturn == 0)
 		return true;
 	else
@@ -90,7 +92,7 @@ bool MusicMCI::close()noexcept
 	MCI_GENERIC_PARMS mciGP{};
 
 	const DWORD dwReturn = mciSendCommand(nDeviceID, MCI_CLOSE,
-		MCI_NOTIFY | MCI_WAIT, (DWORD)static_cast<LPVOID>(&mciGP));
+		MCI_NOTIFY | MCI_WAIT, (DWORD_PTR)(static_cast<LPVOID>(&mciGP)));
 	if (dwReturn == 0)
 	{
 		nDeviceID = -1;
@@ -108,10 +110,10 @@ bool MusicMCI::getCurrentTime(DWORD& pos)noexcept
 
 	mciSP.dwItem = MCI_STATUS_POSITION;
 	const DWORD dwReturn = mciSendCommand(nDeviceID, MCI_STATUS,
-		MCI_STATUS_ITEM, (DWORD)static_cast<LPVOID>(&mciSP));
+		MCI_STATUS_ITEM, (DWORD_PTR)(static_cast<LPVOID>(&mciSP)));
 	if (dwReturn == 0)
 	{
-		pos = mciSP.dwReturn;
+		pos = static_cast<DWORD>(mciSP.dwReturn);
 		return true;
 	}
 	else
@@ -129,10 +131,10 @@ bool MusicMCI::getTotalTime(DWORD& time)noexcept
 
 	mciSP.dwItem = MCI_STATUS_LENGTH;
 	const DWORD dwReturn = mciSendCommand(nDeviceID, MCI_STATUS,
-		MCI_WAIT | MCI_STATUS_ITEM, (DWORD)static_cast<LPVOID>(&mciSP));		// 关键,取得长度
+		MCI_WAIT | MCI_STATUS_ITEM, (DWORD_PTR)(static_cast<LPVOID>(&mciSP)));		// 关键，取得长度
 	if (dwReturn == 0)
 	{
-		time = mciSP.dwReturn;
+		time = static_cast<DWORD>(mciSP.dwReturn);
 		return true;
 	}
 	else
@@ -157,9 +159,9 @@ bool MusicMCI::setVolume(size_t nVolumeValue)noexcept
 
 	MCI_DGV_SETAUDIO_PARMS mciDSP;
 	mciDSP.dwItem = MCI_DGV_SETAUDIO_VOLUME;
-	mciDSP.dwValue = nVolumeValue;
+	mciDSP.dwValue = static_cast<DWORD>(nVolumeValue);
 	const DWORD dwReturn = mciSendCommand(nDeviceID, MCI_SETAUDIO,
-		MCI_DGV_SETAUDIO_VALUE | MCI_DGV_SETAUDIO_ITEM, (DWORD)static_cast<LPVOID>(&mciDSP));
+		MCI_DGV_SETAUDIO_VALUE | MCI_DGV_SETAUDIO_ITEM, (DWORD_PTR)(static_cast<LPVOID>(&mciDSP)));
 	if (dwReturn == 0)
 		return true;
 	else
@@ -177,10 +179,10 @@ bool MusicMCI::setStartTime(size_t start_time) noexcept
 		return false;
 
 	MCI_PLAY_PARMS mciPlay{};
-	mciPlay.dwFrom = start_time;
-	mciPlay.dwTo = end_time;
+	mciPlay.dwFrom = static_cast<DWORD>(start_time);
+	mciPlay.dwTo = static_cast<DWORD>(end_time);
 	const DWORD dwReturn = mciSendCommand(nDeviceID, MCI_PLAY,
-		MCI_TO | MCI_FROM, (DWORD)static_cast<LPVOID>(&mciPlay));
+		MCI_TO | MCI_FROM, (DWORD_PTR)(static_cast<LPVOID>(&mciPlay)));
 
 	if (dwReturn == 0)
 		return true;

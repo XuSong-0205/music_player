@@ -1,20 +1,20 @@
 ﻿#include "GuiMusicPlayer.h"
 
 
-/**********************************************************************************************************************
- *  class GuiMusicPlayer                                                                                              *
- **********************************************************************************************************************/
+/****************************************************************************************************************
+ *  class GuiMusicPlayer																						*
+ ****************************************************************************************************************/
 
-/**************************************************************
- * GuiMusicPlayer private method                              *
- **************************************************************/
+/****************************************************************
+ * GuiMusicPlayer private method								*
+ ****************************************************************/
 
 // 私有的构造函数
 GuiMusicPlayer::GuiMusicPlayer()
 {
 	srand(time(nullptr) & 0xffffffff);
 	initgraph(WIDTH, HEIGHT
-#ifdef DEBUG
+#ifdef _DEBUG
 		, SHOWCONSOLE
 #endif
 	);
@@ -47,17 +47,17 @@ GuiMusicPlayer::GuiMusicPlayer()
 // 查找到返回 true，否则返回 false
 bool GuiMusicPlayer::findBackgroundPicture()noexcept
 {
-	struct _finddata_t fileinfo;															// 文件信息 
-	if (_findfirst("background.jpg", &fileinfo) != -1)										// 查找背景图片
+	WIN32_FIND_DATA fileinfo;													// 文件信息 
+	if (FindFirstFile(L"background.jpg", &fileinfo) != INVALID_HANDLE_VALUE)	// 查找背景图片
 		return true;
 
 	return false;
 }
 
 
-/**************************************************************
- * 事件系统                                                   *
- **************************************************************/
+/****************************************************************
+ * 事件系统														*
+ ****************************************************************/
 
 // 事件循环的入口
 void GuiMusicPlayer::event()
@@ -108,7 +108,7 @@ void GuiMusicPlayer::event()
 			break;
 		}
 
-		Sleep(20);
+		Sleep(10);
 		FlushBatchDraw();
 	}
 
@@ -236,10 +236,10 @@ void GuiMusicPlayer::drawEvent()
 }
 
 
-/**************************************************************
- * 鼠标事件                                                   *
- * 鼠标事件在一次事件循环中只会响应一个                       *
- **************************************************************/
+/****************************************************************
+ * 鼠标事件														*
+ * 鼠标事件在一次事件循环中只会响应一个							*
+ ****************************************************************/
 
 // 鼠标退出事件
 bool GuiMusicPlayer::mouseQuitEvent(const MOUSEMSG& mouse)
@@ -278,6 +278,11 @@ bool GuiMusicPlayer::mousePlayListEvent(const MOUSEMSG& mouse)
 		if (mouse.mkLButton)													// 鼠标左键按下
 		{
 			const size_t ty = (mouse.y - 40) / 40 + numRange.at(0);				// 计算出是播放列表中哪一个编号的歌曲
+			if (ty >= musicData.musicName.size())								// 是否超出播放列表
+			{
+				return true;													// 超出则不做处理，直接返回 true				
+			}
+
 			if (musicData.status == 0)											// 未播放，开始播放
 			{
 				musicData.openMusic(ty);										// 打开并播放
@@ -324,18 +329,18 @@ bool GuiMusicPlayer::mousePlayListEvent(const MOUSEMSG& mouse)
 // 该事件属于播放列表事件的一部分
 bool GuiMusicPlayer::mousePlayListScrollEvent(const MOUSEMSG& mouse)
 {
-	if (mouse.wheel / 120)													// 有鼠标滚动消息
-	{																		// 更新播放列表显示内容
-		const int mouseLen = mouse.wheel / 120;								// 鼠标滚动长度
-		const int musicListLen = musicData.musicName.size() - 1;			// 音乐列表的长度
+	if (mouse.wheel / 120)															// 有鼠标滚动消息
+	{																				// 更新播放列表显示内容
+		const int mouseLen = mouse.wheel / 120;										// 鼠标滚动长度
+		const int musicListLen = static_cast<int>(musicData.musicName.size() - 1);	// 音乐列表的长度
 
 		if (musicListLen > 13)
 		{
-			if (mouseLen >= 0)												// 向上滚动
+			if (mouseLen >= 0)														// 向上滚动
 			{
 				numRange.at(0) = (numRange.at(0) - mouseLen < 0 ? 0 : (numRange.at(0) - mouseLen));
 			}
-			else															// 向下滚动
+			else																	// 向下滚动
 			{
 				numRange.at(0) = (numRange.at(0) - mouseLen) > (musicListLen - 12)
 					? (musicListLen - 12) : (numRange.at(0) - mouseLen);
@@ -344,7 +349,7 @@ bool GuiMusicPlayer::mousePlayListScrollEvent(const MOUSEMSG& mouse)
 			numRange.at(1) = numRange.at(0) + 12;
 		}
 
-		return true;														// 该事件已被处理
+		return true;																// 该事件已被处理
 	}
 
 	return false;
@@ -355,27 +360,78 @@ bool GuiMusicPlayer::mousePlayListScrollEvent(const MOUSEMSG& mouse)
 bool GuiMusicPlayer::mousePlayListScrollBarEvent(const MOUSEMSG& mouse)
 {
 	if (playList && mouse.x >= WIDTH - 10 && mouse.x <= WIDTH - 2
-		&& mouse.y > 40 && mouse.y < HEIGHT - 80)											// 滚动条操作
+		&& mouse.y > 40 && mouse.y < HEIGHT - 80)										// 滚动条操作
 	{
-		if (mouse.mkLButton)
+		if (mouse.mkLButton)															// 左键按下
 		{
-			const int length = (HEIGHT - 120) / 11;
-			const double k = numRange.at(0) / (musicData.musicName.size() + 0.0);			// 比列位置
-			const int y1 = static_cast<int>(40 + (HEIGHT - 120) * k);						// 滚动条的左上角的纵坐标
-			const int msize = musicData.musicName.size();									// 音乐列表的长度
-			if (mouse.y < y1 && numRange.at(0) > 0)											// 上移一个页面
+			const int mSize = static_cast<int>(musicData.musicName.size());				// 音乐列表的长度
+			const double k0 = 13 / (mSize + 0.0);										// 当前页面音乐占所有音乐的比列
+			if (k0 >= 1)
 			{
-				numRange.at(0) = numRange.at(0) - 12 >= 0 ? numRange.at(0) - 12 : 0;
-				numRange.at(1) = numRange.at(0) + 12 < msize ? numRange.at(0) + 12 : msize - 1;
+				return false;															// 总音乐数小于等于 13 时，不画滚动条
+																						// 所以也不响应滚动条事件，直接返回 false
 			}
-			else if (mouse.y > y1 + length && numRange.at(1) < msize - 1)					// 下移一个页面
+
+			const double k1 = numRange.at(0) / (mSize + 0.0);							// 比列位置
+			const int length = static_cast<int>((HEIGHT - 106) * k0);					// 滚动条长度，随动
+			const int y1 = static_cast<int>(40 + (HEIGHT - 106) * k1) + 3;				// 滚动条的左上角的纵坐标
+			const int y2 = y1 + length;													// 右下角纵坐标
+
+			static int prevY = 0;														// 初始化上次的 y 坐标为 0
+			if(mouse.y < y1)															// 在滚动条上方
 			{
-				numRange.at(1) = numRange.at(1) + 12 < msize ? numRange.at(1) + 12 : msize - 1;
-				numRange.at(0) = numRange.at(1) - 12 >= 0 ? numRange.at(1) - 12 : 0;
+				numRange.at(0) = numRange.at(0) - 12 >= 0 ? numRange.at(0) - 12 : 0;	// 上移一个页面
+				numRange.at(1) = numRange.at(0) + 12 < mSize ? numRange.at(0) + 12 : mSize - 1;
+				prevY = 0;																// 离开滚动条区域，清 0
+			}
+			else if (mouse.y >= y1 && mouse.y <= y2)									// 鼠标在滚动条上
+			{
+				if (prevY == mouse.y)													// 此次点击位置和上次相同
+				{
+					prevY = 0;															// 清 0 
+				}
+
+				if (!prevY)																// 若上次不在滚动条区域
+				{
+					prevY = mouse.y;													// 记录当前鼠标纵坐标
+																						// 记为滚动条的中间值
+				}
+				else if(prevY != mouse.y)
+				{
+					const int lenY = mouse.y - prevY;									// 上次到这次的移动距离
+					const double moveMusicLen = (HEIGHT - 106) / (mSize + 0.0);			// 移动播放列表中一首歌曲
+																						// 所需移动鼠标的最小距离
+					if (abs(lenY) >= moveMusicLen)										// 鼠标移动距离达到该距离
+					{
+						const int moveMusicNum = static_cast<int>(lenY / moveMusicLen);	// 要移动的音乐数
+						if (lenY > 0)
+						{
+							numRange.at(1) = numRange.at(1) + moveMusicNum < mSize ?
+								numRange.at(1) + moveMusicNum : mSize - 1;
+							numRange.at(0) = numRange.at(1) - 12 >= 0 ?
+								numRange.at(1) - 12 : 0;								// 移动
+						}
+						else if(lenY < 0)
+						{
+							numRange.at(0) = numRange.at(0) + moveMusicNum >= 0 ?
+								numRange.at(0) + moveMusicNum : 0;
+							numRange.at(1) = numRange.at(0) + 12 < mSize ?
+								numRange.at(0) + 12 : mSize - 1;						// 移动
+						}
+						
+						prevY = mouse.y;												// 更新该值
+					}
+				}
+			}
+			else if (mouse.y > y2)														// 在滚动条下方
+			{
+				numRange.at(1) = numRange.at(1) + 12 < mSize ? numRange.at(1) + 12 : mSize - 1;
+				numRange.at(0) = numRange.at(1) - 12 >= 0 ? numRange.at(1) - 12 : 0;	// 下一一个页面
+				prevY = 0;																// 离开滚动条区域，清 0
 			}
 		}
 
-		return true;																		// 该事件已被处理
+		return true;																	// 该事件已被处理
 	}
 
 	return false;
@@ -507,20 +563,20 @@ bool GuiMusicPlayer::mousePlayModeEvent(const MOUSEMSG& mouse)
 }
 
 
-/**************************************************************
- * 键盘事件                                                   *
- * 键盘事件在一个事件循环中也应只响应一个                     *
- **************************************************************/
+/****************************************************************
+ * 键盘事件														*
+ * 键盘事件在一个事件循环中也应只响应一个						*
+ ****************************************************************/
 
  // 键盘事件暂无
  // 键盘事件同时也只能响应一个
  // 以类似于鼠标事件的方法实现
 
 
-/**************************************************************
- * 定时器事件                                                 *
- * 定时器事件依照次序挨个响应                                 *
- **************************************************************/
+/****************************************************************
+ * 定时器事件													*
+ * 定时器事件依照次序挨个响应									*
+ ****************************************************************/
 
 // 定时器音乐播放事件
 void GuiMusicPlayer::timerPlayMusicEvent()
@@ -554,10 +610,10 @@ void GuiMusicPlayer::timerPlayMusicEvent()
 }
 
 
-/**************************************************************
- * 绘图事件                                                   *
- * 绘图事件依照次序挨个响应                                   *
- **************************************************************/
+/****************************************************************
+ * 绘图事件														*
+ * 绘图事件依照次序挨个响应										*
+ ****************************************************************/
 
  // 画程序的整体 ui 界面(静态)
 void GuiMusicPlayer::drawUiEvent()
@@ -680,13 +736,17 @@ void GuiMusicPlayer::drawPlayListEvent()
 // 滚动条的绘制属于画播放列表的一部分
 void GuiMusicPlayer::drawPlayListScrollBarEvent()
 {
-	const int length = (HEIGHT - 120) / 11 - 2;											// 滚动条长度
-	const double k = numRange.at(0) / (musicData.musicName.size() + 0.0);				// 比列位置
-	const int y1 = static_cast<int>(40 + (HEIGHT - 120) * k) + 4;						// 滚动条的左上角的纵坐标
+	const double k0 = 13 / (musicData.musicName.size() + 0.0);							// 当前页面音乐占所有音乐的比列
+	if (k0 >= 1)
+	{
+		return;																			// 音乐总数小于等于当前页面显示的音乐数
+																						// 直接返回，不画滚动条
+	}
+	const int length = static_cast<int>((HEIGHT - 106) * k0);							// 滚动条长度，随总歌曲数变化
+	const double k1 = numRange.at(0) / (musicData.musicName.size() + 0.0);				// 当前音乐在整个播放列表中的比列
+	const int y1 = static_cast<int>(40 + (HEIGHT - 106) * k1) + 3;						// 滚动条的左上角的纵坐标
 	setfillcolor(0XAA00AA);																// 滚动条颜色，紫色
-	solidcircle(WIDTH - 6, y1, 4);														// 画上半圆
 	solidrectangle(WIDTH - 10, y1, WIDTH - 2, y1 + length);								// 画滚动条
-	solidcircle(WIDTH - 6, y1 + length, 4);												// 画下半圆
 }
 
 // 画音乐进度条事件
@@ -799,11 +859,11 @@ void GuiMusicPlayer::drawPlayPauseButtonEvent()
 // 画音量条事件
 void GuiMusicPlayer::drawVolumeBarEvent()
 {
-	setfillcolor(0XAA00AA);															// 紫色
+	setfillcolor(0XAA00AA);																	// 紫色
 	solidrectangle(WIDTH / 2 + 140, HEIGHT - 30,
-		WIDTH / 2 + 140 + musicData.volume / 10, HEIGHT - 31);						// 画音量条
-	solidrectangle(WIDTH / 2 + 140 + musicData.volume / 10, HEIGHT - 35,
-		WIDTH / 2 + 140 + musicData.volume / 10 + 3, HEIGHT - 25);					// 画音量竖小短线
+		WIDTH / 2 + 140 + static_cast<int>(musicData.volume / 10), HEIGHT - 31);			// 画音量条
+	solidrectangle(WIDTH / 2 + 140 + static_cast<int>(musicData.volume / 10), HEIGHT - 35,
+		WIDTH / 2 + 140 + static_cast<int>(musicData.volume / 10 + 3), HEIGHT - 25);		// 画音量竖小短线
 }
 
 // 画播放模式事件
@@ -829,9 +889,9 @@ void GuiMusicPlayer::drawPlayModeEvent()
 }
 
 
-/**************************************************************
- * GuiMusicPlayer public method                               *
- **************************************************************/
+/****************************************************************
+ * GuiMusicPlayer public method									*
+ ****************************************************************/
 
 // 析构函数
 GuiMusicPlayer::~GuiMusicPlayer()

@@ -1,45 +1,49 @@
 #include "MusicData.h"
 
 
-/**************************************************************************************************************
- *  class MusicData                                                                                           *
- **************************************************************************************************************/
+/****************************************************************************************************************
+ *  class MusicData																								*
+ ****************************************************************************************************************/
 
-/**************************************************************
- * MusicData private method                                   *
- **************************************************************/
+/****************************************************************
+ * MusicData private method										*
+ ****************************************************************/
+
+
+#ifdef _DEBUG
+FILE* STD_COUT_STREAM = nullptr;								// 指向标准输出流的文件指针
+#endif // _DEBUG
 
 // 打开并播放音乐
 void MusicData::openMusic(size_t num)
 {
 	if (musicPathName.empty() || num > musicPathName.size() - 1)
 	{
-#ifdef DEBUG
-		wcout << L"参数不符合要求，请重试！" << endl;
-#endif // DEBUG
+#ifdef _DEBUG
+		std::wcout << L"参数不符合要求，请重试！" << std::endl;
+#endif // _DEBUG
 
 		status = 0;
 		return;
 	}
 
-	wstring musci_name = stringTowstring(musicPathName.at(num));
 	nowMusicName = musicName.at(num);								// 设置正在操作的音乐名
 	number = num;													// 设置正在操作的音乐名编号
 
-	if (musicMci.open(musci_name.c_str()))
+	if (musicMci.open(musicPathName.at(num).c_str()))
 	{
-#ifdef DEBUG
-		wcout << L"音乐 " << nowMusicName << L" 打开成功！" << endl;
-#endif // DEBUG
+#ifdef _DEBUG
+		std::wcout << L"音乐 " << nowMusicName << L" 打开成功！" << std::endl;
+#endif // _DEBUG
 
 		playMusic();
 		musicMci.setVolume(volume);
 	}
 	else
 	{
-#ifdef DEBUG
-		wcout << L"音乐 " << nowMusicName << L" 打开失败！" << endl;
-#endif // DEBUG
+#ifdef _DEBUG
+		std::wcout << L"音乐 " << nowMusicName << L" 打开失败！" << std::endl;
+#endif // _DEBUG
 	}
 }
 
@@ -48,17 +52,17 @@ void MusicData::playMusic()
 {
 	if (musicMci.play())
 	{
-#ifdef DEBUG
-		wcout << L"音乐 " << nowMusicName << L" 播放成功！" << endl;
-#endif // DEBUG
+#ifdef _DEBUG
+		std::wcout << L"音乐 " << nowMusicName << L" 播放成功！" << std::endl;
+#endif // _DEBUG
 
 		status = 1;
 	}
 	else
 	{
-#ifdef DEBUG
-		wcout << L"音乐 " << nowMusicName << L" 播放失败！" << endl;
-#endif // DEBUG
+#ifdef _DEBUG
+		std::wcout << L"音乐 " << nowMusicName << L" 播放失败！" << std::endl;
+#endif // _DEBUG
 
 		status = 0;
 	}
@@ -71,17 +75,17 @@ void MusicData::pauseMusic()
 	{
 		if (musicMci.pause())
 		{
-#ifdef DEBUG
-			wcout << L"音乐 " << nowMusicName << L" 已暂停！" << endl;
-#endif // DEBUG
+#ifdef _DEBUG
+			std::wcout << L"音乐 " << nowMusicName << L" 已暂停！" << std::endl;
+#endif // _DEBUG
 
 			status = 2;
 		}
 		else
 		{
-#ifdef DEBUG
-			wcout << L"音乐 " << nowMusicName << L" 暂停失败！" << endl;
-#endif // DEBUG
+#ifdef _DEBUG
+			std::wcout << L"音乐 " << nowMusicName << L" 暂停失败！" << std::endl;
+#endif // _DEBUG
 		}
 	}
 }
@@ -91,17 +95,17 @@ void MusicData::stopMusic()
 {
 	if (musicMci.stop())
 	{
-#ifdef DEBUG
-		wcout << L"音乐 " << nowMusicName << L" 已暂停！" << endl;
-#endif // DEBUG
+#ifdef _DEBUG
+		std::wcout << L"音乐 " << nowMusicName << L" 已暂停！" << std::endl;
+#endif // _DEBUG
 
 		status = 0;
 	}
 	else
 	{
-#ifdef DEBUG
-		wcout << L"音乐 " << nowMusicName << L" 暂停失败！" << endl;
-#endif // DEBUG
+#ifdef _DEBUG
+		std::wcout << L"音乐 " << nowMusicName << L" 暂停失败！" << std::endl;
+#endif // _DEBUG
 	}
 }
 
@@ -110,17 +114,17 @@ void MusicData::closeMusic()
 {
 	if (musicMci.close())
 	{
-#ifdef DEBUG
-		wcout << L"音乐 " << nowMusicName << L" 已关闭！" << endl;
-#endif // DEBUG
+#ifdef _DEBUG
+		std::wcout << L"音乐 " << nowMusicName << L" 已关闭！" << std::endl;
+#endif // _DEBUG
 
 		status = 0;
 	}
 	else
 	{
-#ifdef DEBUG
-		wcout << L"音乐 " << nowMusicName << L" 关闭失败！" << endl;
-#endif // DEBUG
+#ifdef _DEBUG
+		std::wcout << L"音乐 " << nowMusicName << L" 关闭失败！" << std::endl;
+#endif // _DEBUG
 	}
 }
 
@@ -132,12 +136,12 @@ void MusicData::setMusicVolume(size_t vol)
 	{
 		if (musicMci.setVolume(vol))
 			volume = vol;
-#ifdef DEBUG
+#ifdef _DEBUG
 		else
 		{
-			wcout << L"音量设置失败！" << endl;
+			std::wcout << L"音量设置失败！" << std::endl;
 		}
-#endif // DEBUG
+#endif // _DEBUG
 	}
 	else
 	{
@@ -157,9 +161,9 @@ bool MusicData::setMusicStartTime(size_t start_time)
 		}
 		else
 		{
-#ifdef DEBUG
-			wcout << L"设置播放位置失败！" << endl;
-#endif // DEBUG
+#ifdef _DEBUG
+			std::wcout << L"设置播放位置失败！" << std::endl;
+#endif // _DEBUG
 			return false;
 		}
 	}
@@ -175,9 +179,9 @@ int MusicData::getMusicCurrentTime()
 		DWORD playTime = 0;
 		if (!musicMci.getCurrentTime(playTime))
 		{
-#ifdef DEBUG
-			wcout << L"获取播放时长失败！" << endl;
-#endif // DEBUG
+#ifdef _DEBUG
+			std::wcout << L"获取播放时长失败！" << std::endl;
+#endif // _DEBUG
 
 			return 0;
 		}
@@ -195,9 +199,9 @@ int MusicData::getMusicTotalTime()
 		DWORD totalTime = 0;
 		if (!musicMci.getTotalTime(totalTime))
 		{
-#ifdef DEBUG
-			wcout << L"获取总时长失败！" << endl;
-#endif // DEBUG
+#ifdef _DEBUG
+			std::wcout << L"获取总时长失败！" << std::endl;
+#endif // _DEBUG
 
 			return 0;
 		}
@@ -211,207 +215,212 @@ int MusicData::getMusicTotalTime()
 // 从文件 filePath.ini 中读取搜索路径
 void MusicData::getFilePath()
 {
-	fstream fPath("filePath.ini", ios_base::in);
-	if (!fPath.is_open())
+	FILE* fp = nullptr;
+	auto err = _wfopen_s(&fp, L"filePath.ini", L"r");
+	if (err != 0)
 	{
-#ifdef DEBUG
-		wcout << L"文件 filePath.ini 打开失败！" << endl;
-		wcerr << L"程序将尝试新建此文件!" << endl;
-#endif // DEBUG
+#ifdef _DEBUG
+		std::wcout << L"文件 filePath.ini 打开失败" << std::endl;
+		std::wcout << L"程序将新建文件 filePath.ini" << std::endl;
+#endif // _DEBUG
 
-		fPath.open("filePath.ini", ios_base::in | ios_base::out | ios_base::trunc);
-		if (fPath.is_open())
+		err = _wfopen_s(&fp, L"filePath.ini", L"w, ccs=UTF-16LE");
+		if (err == 0)
 		{
-#ifdef DEBUG
-			wcout << L"文件 filePath.ini 创建成功！" << endl;
-#endif // DEBUG
+#ifdef _DEBUG
+			std::wcout << L"文件 filePath.ini 创建成功" << std::endl;
+#endif // _DEBUG
 
-			filePath = "..";								// 设置默认为当前路径
-			wFilePath(fPath);								// 写入
+			fputws(L"; 请在“path=”后写入合适的音乐搜索路径\n", fp);
+			fputws(L"; 注意，请在修改后确保文件编码为 UTF-16LE，若不是，请将文件另存为 UTF-16LE 编码并保存\n", fp);
+			// 写入配置文件注释
+			fclose(fp);										// 关闭文件
+
+			filePath = L".";								// 设置默认为当前路径
+			wFilePath();									// 写入配置信息
 		}
 	}
 	else
 	{
-		rFilePath(fPath);									// 读取
+		rFilePath();										// 读取配置信息
+		fclose(fp);											// 关闭文件
 	}
 }
 
 // 获取特定格式的文件名    
-void MusicData::findMusicName(const string& path)
+void MusicData::findMusicName(const wstring& path)
 {
-	_finddata_t fileinfo;															// 文件信息
-	auto hFile = _findfirst((path + "\\*." + musicFormat).c_str(), &fileinfo);		// 查找当前文件夹是否存在指定格式文件
-	if (hFile != -1)																// 如果该文件夹下存在指定格式文件
+	WIN32_FIND_DATA fileinfo;														// 文件信息
+	auto hFind = FindFirstFile((path + L"\\*." + musicFormat).c_str(), &fileinfo);	// 查找当前文件夹是否存在指定格式文件
+	if (hFind != INVALID_HANDLE_VALUE)												// 找到指定格式文件
 	{
 		do
 		{
-			string str = fileinfo.name;
-			musicPathName.push_back(path + "\\" + str);								// 写入音乐全路径名
-			musicName.push_back(stringTowstring(str.substr(0, str.size() - musicFormat.size() - 1)));	// 写入音乐名
-		} while (_findnext(hFile, &fileinfo) == 0);
+			wstring str = fileinfo.cFileName;
+			musicPathName.push_back(path + L"\\" + str);							// 写入音乐全路径名
+			musicName.push_back(str.substr(0, str.size() - musicFormat.size() - 1));// 写入音乐名
+		} while (FindNextFile(hFind, &fileinfo));
 	}
+	FindClose(hFind);
 
-	hFile = _findfirst((path + "\\*").c_str(), &fileinfo);							// 查找子文件夹，查找所有文件
-	if (hFile != -1)
+	hFind = FindFirstFile((path + L"\\*").c_str(), &fileinfo);						// 查找子文件夹，查找所有文件
+	if (hFind != INVALID_HANDLE_VALUE)
 	{
 		do
 		{
-			if ((fileinfo.attrib & _A_SUBDIR))										// 判断是否为文件夹
+			if ((fileinfo.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))				// 判断是否为文件夹
 			{
-				if (fileinfo.name[0] != '.')										// 文件夹名中不含"."和".."
+				if (fileinfo.cFileName[0] != L'.')									// 过滤文件夹 "." 和 ".."
 				{
-					findMusicName(path + "\\" + fileinfo.name);						// 递归遍历文件夹
+					findMusicName(path + L"\\" + fileinfo.cFileName);				// 递归遍历文件夹
 				}
 			}
-		} while (_findnext(hFile, &fileinfo) == 0);
+		} while (FindNextFile(hFind, &fileinfo));
 	}
-	_findclose(hFile);
+	FindClose(hFind);
 }
 
 // 将 filePath 写入文件 filePath.ini
-void MusicData::wFilePath(fstream& file)
+void MusicData::wFilePath()
 {
-	file << filePath;
+	// 在 .\\filePath.ini 中写入 节 [filePath] 键=值 path=filePath
+	WritePrivateProfileString(L"filePath", L"path", filePath.c_str(), L".\\filePath.ini");
 }
 
 // 将文件 filePath.ini 读取到 filePath
-void MusicData::rFilePath(fstream& file)
+void MusicData::rFilePath()
 {
-	string temp;
-	getline(file, temp);
-	if (temp.empty())
-	{
-#ifdef DEBUG
-		wcout << L"文件内容为空！" << endl;
-		wcout << L"文件路径设置为默认！" << endl;
-#endif // DEBUG
+	// 读取对应节，键的值
+	array<wchar_t, 256> wptr{ L'\0' };
+	const DWORD d = GetPrivateProfileString(L"filePath", L"path", L".",
+		&wptr.at(0), 256, L".\\filePath.ini");
 
-		filePath = "..";							// 默认为当前路径
-		wFilePath(file);							// 写入
-	}
-	else
-	{
-		filePath = temp;
-	}
+	filePath = &wptr.at(0);
 }
 
 // 将 musicPathName 写入文件 music.mn 中
-void MusicData::wFileMusic(fstream& file)
+void MusicData::wFileMusic(FILE* fp)
 {
 	if (!musicPathName.empty())
 	{
-		const int n = musicPathName.size();
-		file << musicPathName.at(0);
-		for (int i = 1; i < n; ++i)
-			file << "\n" << musicPathName.at(i);
-#ifdef DEBUG
-		wcout << L"文件 music.mn 写入完毕！" << endl;
-#endif // DEBUG
+		const int len = static_cast<int>(musicPathName.size());
+		fputws(musicPathName.at(0).c_str(), fp);
+
+		for (int i = 1; i < len; ++i)
+		{
+			fputws(L"\n", fp);
+			fputws(musicPathName.at(i).c_str(), fp);
+		}
+#ifdef _DEBUG
+		std::wcout << L"文件 music.mn 写入完毕" << std::endl;
+#endif // _DEBUG
 	}
-#ifdef DEBUG
+#ifdef _DEBUG
 	else
 	{
-		wcout << L"musicPathName 为空！" << endl;
+		std::wcout << L"musicPathName 为空" << std::endl;
 	}
-#endif // DEBUG
+#endif // _DEBUG
 }
 
 // 从 music.mn 读取到 musicPathName 和 musicName 中
-void MusicData::rFileMusic(fstream& file)
+void MusicData::rFileMusic(FILE* fp)
 {
-	string s;
-	if (file.eof())
-	{
-#ifdef DEBUG
-		wcout << L"文件 music.mn 为空！" << endl;
-#endif // DEBUG
-	}
+	wstring s;
+	array<wchar_t, 256> wMusic{ L'\0' };
 
-	while (!file.eof())
+	while (!feof(fp))
 	{
-		getline(file, s);
+		fgetws(&wMusic.at(0), 256, fp);
+		s = &wMusic.at(0);
+		if (s.empty())
+		{
+			continue;															// 若为空，跳过
+		}
+		if (s.back() == L'\n')
+		{
+			s.pop_back();														// 去掉末尾的换行符
+			if (s.empty())
+			{
+				continue;
+			}
+		}
 		musicPathName.push_back(s);												// 写入音乐全路径名
-		const auto pos = s.rfind("\\");
+		const auto pos = s.rfind(L"\\");
 		s = s.substr(pos + 1, s.size() - pos - 1 - musicFormat.size() - 1);		// 截取出音乐名
-		musicName.push_back(stringTowstring(s));								// 写入音乐名
+		musicName.push_back(s);													// 写入音乐名
 	}
-#ifdef DEBUG
-	wcout << L"文件 musci.mn 读取完毕！" << endl;
-#endif // DEBUG
+#ifdef _DEBUG
+	std::wcout << L"文件 musci.mn 读取完毕" << std::endl;
+	if (musicPathName.empty())
+	{
+		std::wcout << L"musicPathName 为空" << std::endl;
+	}
+#endif // _DEBUG
 }
 
 
-/**************************************************************
- *  MusicData public method                                   *
- **************************************************************/
+/****************************************************************
+ *  MusicData public method										*
+ ****************************************************************/
 
-// 默认构造函数
+ // 默认构造函数
 MusicData::MusicData()
 {
 	srand(time(nullptr) & 0xffffffff);
-	getFilePath();																// 初始化搜索的文件路径
 
-#ifdef DEBUG
-	wcout.imbue(std::locale("", LC_CTYPE));
-	wcout << L"文件搜索路径为：" << stringTowstring(filePath) << endl;
-#endif // DEBUG
+#ifdef _DEBUG
+	AllocConsole();														// 添加控制台
+	freopen_s(&STD_COUT_STREAM, "CON", "w", stdout);					// 重定向标准输出流
+	std::wcout.imbue(std::locale("", LC_CTYPE));
+#endif // _DEBUG
 
-	fstream file("music.mn", ios_base::in);
-	if (!file.is_open())
+	FILE* fp = nullptr;													// 文件指针
+	auto err = _wfopen_s(&fp, L"music.mn", L"r, ccs=UTF-16LE");			// 以 只读，UTF-16LE 编码格式打开文件
+	if (err == 0)														// 打开成功
 	{
-#ifdef DEBUG
-		wcerr << L"文件 music.mn 打开失败，此文件可能不存在" << endl;
-		wcerr << L"程序将尝试新建此文件，并初始化文件内容" << endl;
-#endif // DEBUG
-
-		file.open("music.mn", ios_base::out);			// 新建文件
-		if (file.is_open())
-		{
-#ifdef DEBUG
-			wcout << L"文件 music.mn 创建成功！" << endl;
-			wcout << L"正在搜索音乐中..." << endl;
-#endif // DEBUG
-
-			findMusicName(filePath);
-
-#ifdef DEBUG
-			wcout << L"音乐搜索完毕！" << endl;
-#endif // DEBUG
-
-			wFileMusic(file);
-		}
+		rFileMusic(fp);													// 若文件存在，直接读取其内容
+		fclose(fp);														// 关闭文件
 	}
 	else
 	{
-		rFileMusic(file);								// 若文件存在，直接读取其内容
+#ifdef _DEBUG
+		std::wcout << L"文件 music.mn 打开失败" << std::endl;
+		std::wcout << L"程序将新建文件 music.mn，并进行音乐搜索" << std::endl;
+#endif // _DEBUG
+
+		err = _wfopen_s(&fp, L"music.mn", L"w, ccs=UTF-16LE");			// 创建以 UTF-16LE 编码的文件
+		if (err == 0)													// 打开成功，创建成功
+		{
+#ifdef _DEBUG
+			std::wcout << L"文件 music.mn 创建成功" << std::endl;
+#endif // _DEBUG
+
+			getFilePath();												// 获取音乐的搜索路径
+
+#ifdef _DEBUG
+			std::wcout << L"音乐搜索路径为：" << filePath << std::endl;
+			std::wcout << L"音乐搜索中..." << std::endl;
+#endif // _DEBUG
+
+			findMusicName(filePath);
+
+#ifdef _DEBUG
+			std::wcout << L"音乐搜索完毕" << std::endl;
+#endif // _DEBUG
+
+			wFileMusic(fp);												// 写入
+			fclose(fp);													// 关闭它
+		}
 	}
-	file.close();										// 关闭文件
-
-	if (!musicPathName.empty() && musicPathName.back() == "")
-		musicPathName.pop_back();						// 删除最后一个空白行
-
-	if (!musicName.empty() && musicName.back() == L"")
-		musicName.pop_back();
 }
 
 // 析构函数
 MusicData::~MusicData()
 {
 	closeMusic();
-}
 
-
-// 非成员函数
-// string转wstring
-wstring stringTowstring(const string& str)
-{
-	wstring result;
-	// 获取缓冲区大小，并申请空间，缓冲区大小按字符计算
-	const size_t len = MultiByteToWideChar(CP_ACP, 0, str.c_str(), str.size(), nullptr, 0);
-	vector<TCHAR> buffer(len + 1u);
-	// 多字节编码转换成宽字节编码
-	MultiByteToWideChar(CP_ACP, 0, str.c_str(), str.size(), &buffer.at(0), len);
-	buffer.at(len) = '\0';			// 添加字符串结尾
-	result.append(&buffer.at(0));
-	return result;
+#ifdef _DEBUG
+	fclose(STD_COUT_STREAM);
+#endif // _DEBUG
 }
