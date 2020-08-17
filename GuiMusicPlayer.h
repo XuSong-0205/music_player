@@ -17,6 +17,11 @@ private:
 	bool haveBackgroundImage;								// 是否存在背景图
 	bool playList = false;									// 播放列表是否展开
 	bool quit = false;										// 是否退出
+	int position = 0;										// 每一位对应一个部件的状态
+															// 0 - 4 位表示在音乐列表的绝对歌曲位置
+															// 5, 10 位滚动条，进度条
+															// 11，12，13 位依次对应位置 上一曲，开始（暂停），下一曲
+															// 14，15 位音量条，播放模式
 	array<int, 2> numRange;									// 播放列表显示的音乐范围 numRange[0] 为 musicData.musicName
 															// 显示在音乐列表开始的下标
 															// numRange[1] 为在播放列表的结束下标

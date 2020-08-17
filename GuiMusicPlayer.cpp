@@ -137,6 +137,11 @@ void GuiMusicPlayer::mouseEvent(const MOUSEMSG& mouse)
 		return;
 	}
 
+	// 若音乐列表未展开，不响应下列事件
+	if (!playList)
+	{
+		return;
+	}
 
 	// 处理鼠标播放列表事件
 	if (mousePlayListEvent(mouse))
@@ -209,12 +214,8 @@ void GuiMusicPlayer::drawEvent()
 	// 画播放列表箭头事件
 	drawPlayListArrowEvent();
 
-	// 当播放列表展开时，画播放列表
-	if (playList)
-	{
-		// 画播放列表事件
-		drawPlayListEvent();
-	}
+	// 画播放列表事件
+	drawPlayListEvent();
 
 	// 画进度条事件
 	drawMusicProgressBarEvent();
@@ -273,11 +274,14 @@ bool GuiMusicPlayer::mousePlayListArrowEvent(const MOUSEMSG& mouse)
 bool GuiMusicPlayer::mousePlayListEvent(const MOUSEMSG& mouse)
 {
 	if (playList && mouse.x > 260 && mouse.x < WIDTH - 20
-		&& mouse.y > 40 && mouse.y < HEIGHT - 80)								// 在播放列表
+		&& mouse.y > 50 && mouse.y < HEIGHT - 70)								// 在播放列表
 	{
+		const size_t ty = (mouse.y - 50) / 40 + numRange.at(0);					// 计算出是播放列表中哪一个编号的歌曲
+		position = (position & 0xfffffff0) |
+			(static_cast<int>(ty) - numRange.at(0)) + 1;						// 设置在播放列表的绝对位置
+
 		if (mouse.mkLButton)													// 鼠标左键按下
 		{
-			const size_t ty = (mouse.y - 40) / 40 + numRange.at(0);				// 计算出是播放列表中哪一个编号的歌曲
 			if (ty >= musicData.musicName.size())								// 是否超出播放列表
 			{
 				return true;													// 超出则不做处理，直接返回 true				
@@ -321,6 +325,11 @@ bool GuiMusicPlayer::mousePlayListEvent(const MOUSEMSG& mouse)
 			return true;
 		}
 	}
+	else
+	{
+		position &= 0xfffffff0;													// 抹去 0 - 4 位
+	}
+
 	return false;
 }
 
@@ -362,6 +371,8 @@ bool GuiMusicPlayer::mousePlayListScrollBarEvent(const MOUSEMSG& mouse)
 	if (playList && mouse.x >= WIDTH - 10 && mouse.x <= WIDTH - 2
 		&& mouse.y > 40 && mouse.y < HEIGHT - 80)										// 滚动条操作
 	{
+		position |= (1 << 5);															// 在滚动条范围内
+
 		if (mouse.mkLButton)															// 左键按下
 		{
 			const int mSize = static_cast<int>(musicData.musicName.size());				// 音乐列表的长度
@@ -433,6 +444,10 @@ bool GuiMusicPlayer::mousePlayListScrollBarEvent(const MOUSEMSG& mouse)
 
 		return true;																	// 该事件已被处理
 	}
+	else
+	{
+		position &= ~(1 << 5);
+	}
 
 	return false;
 }
@@ -440,18 +455,27 @@ bool GuiMusicPlayer::mousePlayListScrollBarEvent(const MOUSEMSG& mouse)
 // 鼠标音乐进度条事件
 bool GuiMusicPlayer::mouseMusicProgressBarEvent(const MOUSEMSG& mouse)
 {
-	if (mouse.mkLButton && mouse.y >= HEIGHT - 68 && mouse.y <= HEIGHT - 52 &&
+	if (mouse.y >= HEIGHT - 68 && mouse.y <= HEIGHT - 52 &&
 		mouse.x >= 0 && mouse.x <= WIDTH)								// 音乐进度条
 	{
-		const double k = mouse.x / (WIDTH + 0.0);						// 计算出进度条比列
-		const size_t start_time = static_cast<size_t>
-			(k * musicData.getMusicTotalTime() * 1000);					// 计算处新的音乐播放时间
-		if (musicData.setMusicStartTime(start_time))					// 设置播放位置
-		{
-			musicData.status = 1;										// 设置当前播放状态为 正在播放
-		}
+		position |= (1 << 10);											// 在进度条
 
-		return true;													// 该事件已被处理
+		if (mouse.mkLButton)
+		{
+			const double k = mouse.x / (WIDTH + 0.0);					// 计算出进度条比列
+			const size_t start_time = static_cast<size_t>
+				(k * musicData.getMusicTotalTime() * 1000);				// 计算处新的音乐播放时间
+			if (musicData.setMusicStartTime(start_time))				// 设置播放位置
+			{
+				musicData.status = 1;									// 设置当前播放状态为 正在播放
+			}
+
+			return true;												// 该事件已被处理
+		}
+	}
+	else
+	{
+		position &= ~(1 << 10);											// 抹去该位
 	}
 
 	return false;
@@ -460,23 +484,32 @@ bool GuiMusicPlayer::mouseMusicProgressBarEvent(const MOUSEMSG& mouse)
 // 鼠标播放暂停按钮事件
 bool GuiMusicPlayer::mousePlayPauseButtonEvent(const MOUSEMSG& mouse)
 {
-	if (mouse.mkLButton && pow(mouse.x - WIDTH / 2, 2) +
+	if (pow(mouse.x - WIDTH / 2, 2) +
 		pow(mouse.y - HEIGHT + 30, 2) <= 400)									// 是否在圆形播放，暂停按钮内
 	{																			// 根据播放状态进行操作
-		if (musicData.status == 0)												// 若未播放
-		{
-			musicData.openMusic(musicData.number);								// 打开并播放
-		}
-		else if (musicData.status == 1)											// 正在播放
-		{
-			musicData.pauseMusic();												// 暂停
-		}
-		else if (musicData.status == 2)											// 暂停播放
-		{
-			musicData.playMusic();												// 继续
-		}
+		position |= (1 << 12);													// 在开始按钮内
 
-		return true;															// 该事件已被处理
+		if (mouse.mkLButton)
+		{
+			if (musicData.status == 0)											// 若未播放
+			{
+				musicData.openMusic(musicData.number);							// 打开并播放
+			}
+			else if (musicData.status == 1)										// 正在播放
+			{
+				musicData.pauseMusic();											// 暂停
+			}
+			else if (musicData.status == 2)										// 暂停播放
+			{
+				musicData.playMusic();											// 继续
+			}
+
+			return true;														// 该事件已被处理
+		}
+	}
+	else
+	{
+		position &= ~(1 << 12);
 	}
 
 	return false;
@@ -485,24 +518,34 @@ bool GuiMusicPlayer::mousePlayPauseButtonEvent(const MOUSEMSG& mouse)
 // 鼠标上一曲按钮事件
 bool GuiMusicPlayer::mousePreviousMusicButtonEvent(const MOUSEMSG& mouse)
 {
-	if (mouse.mkLButton && mouse.x >= WIDTH / 2 - 65 && mouse.x <= WIDTH / 2 - 48 &&
+	if (mouse.x >= WIDTH / 2 - 65 && mouse.x <= WIDTH / 2 - 48 &&
 		mouse.y >= HEIGHT - 38 && mouse.y <= HEIGHT - 22)							// 上一曲
 	{
-		if (musicData.status)														// 是否需要关闭音乐
-		{
-			musicData.closeMusic();
-		}
+		position |= (1 << 11);														// 在上一曲按钮内
 
-		if (musicData.mode == 0 || musicData.mode == 1)								// 若不是随机播放，上一曲
+		if (mouse.mkLButton)
 		{
-			musicData.openMusic(musicData.number == 0 ? musicData.musicName.size() - 1 : musicData.number - 1);
-		}
-		else																		// 是随机播放，随机一曲
-		{
-			musicData.openMusic(rand() % musicData.musicName.size());
-		}
+			if (musicData.status)													// 是否需要关闭音乐
+			{
+				musicData.closeMusic();
+			}
 
-		return true;																// 事件已被处理
+			if (musicData.mode == 0 || musicData.mode == 1)							// 若不是随机播放，上一曲
+			{
+				musicData.openMusic(musicData.number == 0 ? 
+					musicData.musicName.size() - 1 : musicData.number - 1);
+			}
+			else																	// 是随机播放，随机一曲
+			{
+				musicData.openMusic(rand() % musicData.musicName.size());
+			}
+
+			return true;															// 事件已被处理
+		}
+	}
+	else
+	{
+		position &= ~(1 << 11);
 	}
 
 	return false;
@@ -511,24 +554,34 @@ bool GuiMusicPlayer::mousePreviousMusicButtonEvent(const MOUSEMSG& mouse)
 // 鼠标下一曲按钮事件
 bool GuiMusicPlayer::mouseNextMusicButonEvent(const MOUSEMSG& mouse)
 {
-	if (mouse.mkLButton && mouse.x >= WIDTH / 2 + 48 && mouse.x <= WIDTH / 2 + 65 &&
+	if (mouse.x >= WIDTH / 2 + 48 && mouse.x <= WIDTH / 2 + 65 &&
 		mouse.y >= HEIGHT - 38 && mouse.y <= HEIGHT - 22)				// 下一曲
 	{
-		if (musicData.status)
-		{
-			musicData.closeMusic();
-		}
+		position |= (1 << 13);											// 在下一曲按钮内
 
-		if (musicData.mode == 0 || musicData.mode == 1)
+		if (mouse.mkLButton)
 		{
-			musicData.openMusic(musicData.number + 1 > musicData.musicName.size() - 1 ? 0 : musicData.number + 1);
-		}
-		else
-		{
-			musicData.openMusic(rand() % musicData.musicName.size());
-		}
+			if (musicData.status)
+			{
+				musicData.closeMusic();
+			}
 
-		return true;													// 该事件已被处理
+			if (musicData.mode == 0 || musicData.mode == 1)
+			{
+				musicData.openMusic(musicData.number + 1 > 
+					musicData.musicName.size() - 1 ? 0 : musicData.number + 1);
+			}
+			else
+			{
+				musicData.openMusic(rand() % musicData.musicName.size());
+			}
+
+			return true;												// 该事件已被处理
+		}
+	}
+	else
+	{
+		position &= ~(1 << 13);
 	}
 
 	return false;
@@ -537,12 +590,21 @@ bool GuiMusicPlayer::mouseNextMusicButonEvent(const MOUSEMSG& mouse)
 // 鼠标音量条事件
 bool GuiMusicPlayer::mouseVolumeBarEvent(const MOUSEMSG& mouse)
 {
-	if (mouse.mkLButton && mouse.x >= WIDTH / 2 + 140 && mouse.x <= WIDTH / 2 + 240 &&
+	if (mouse.x >= WIDTH / 2 + 140 && mouse.x <= WIDTH / 2 + 240 &&
 		mouse.y <= HEIGHT - 25 && mouse.y >= HEIGHT - 35)						// 音量条
 	{
-		musicData.setMusicVolume((mouse.x - WIDTH / 2 - 140) * 10);				// 设置音量
+		position |= (1 << 14);													// 在音量条内
 
-		return true;															// 该事件已被处理
+		if (mouse.mkLButton)
+		{
+			musicData.setMusicVolume((mouse.x - WIDTH / 2 - 140) * 10);			// 设置音量
+
+			return true;														// 该事件已被处理
+		}
+	}
+	else
+	{
+		position &= ~(1 << 14);
 	}
 
 	return false;
@@ -551,12 +613,21 @@ bool GuiMusicPlayer::mouseVolumeBarEvent(const MOUSEMSG& mouse)
 // 鼠标播放模式事件
 bool GuiMusicPlayer::mousePlayModeEvent(const MOUSEMSG& mouse)
 {
-	if (mouse.mkLButton && mouse.x >= WIDTH / 2 + 300 && mouse.x <= WIDTH / 2 + 360 &&
+	if (mouse.x >= WIDTH / 2 + 300 && mouse.x <= WIDTH / 2 + 360 &&
 		mouse.y <= HEIGHT - 25 && mouse.y >= HEIGHT - 40)		// 播放模式
 	{
-		musicData.mode = ++musicData.mode % 3;					// 顺序变更播放模式
+		position |= (1 << 15);									// 在播放模式内
 
-		return true;											// 该事件已被处理
+		if (mouse.mkLButton)
+		{
+			musicData.mode = ++musicData.mode % 3;				// 顺序变更播放模式
+
+			return true;										// 该事件已被处理
+		}
+	}
+	else
+	{
+		position &= ~(1 << 15);
 	}
 
 	return false;
@@ -628,8 +699,10 @@ void GuiMusicPlayer::drawUiEvent()
 		cleardevice();													// 使用背景色清空画面
 	}
 
-	constexpr COLORREF c0 = 0XAA00AA;
-	settextcolor(0X0000AA);																	// 字体颜色
+	constexpr COLORREF c0 = 0XAA00AA;									// 紫色
+	constexpr COLORREF c1 = 0X0000AA;									// 红色
+
+	settextcolor(c1);																		// 字体颜色
 	settextstyle(15, 0, L"宋体");															// 字体样式
 	setbkmode(TRANSPARENT);																	// 文字输出背景透明
 	outtextxy(WIDTH - 40, 10, L"退出");
@@ -644,18 +717,24 @@ void GuiMusicPlayer::drawUiEvent()
 	/***************************************************************************************
 	 * 画播放框 ui                                                                         *
 	 ***************************************************************************************/
-	setlinecolor(c0);																		// 设置画线颜色
-	setfillcolor(c0);																		// 设置填充颜色
 
+	// 画上一曲按键
+	COLORREF color = position & (1 << 11) ? c1 : c0;										// 选择颜色
+	setlinecolor(color);																	// 设置画线颜色
+	setfillcolor(color);																	// 设置填充颜色
+	
 	line(WIDTH / 2 - 64, HEIGHT - 37, WIDTH / 2 - 64, HEIGHT - 23);							// |
 	line(WIDTH / 2 - 65, HEIGHT - 37, WIDTH / 2 - 65, HEIGHT - 23);
 
 	const array<array<POINT, 2>, 3> a0{ WIDTH / 2 - 48,HEIGHT - 38,
 		WIDTH / 2 - 48,HEIGHT - 22,WIDTH / 2 - 60,HEIGHT - 30 };
 	solidpolygon(&a0.at(0).at(0), 3);														// <|
+	// 画上一曲按键结束
 
-	setfillcolor(c0);
-	solidcircle(WIDTH / 2, HEIGHT - 30, 20);												// ⚪
+	// 画下一曲按键
+	color = position & (1 << 13) ? c1 : c0;													// 选择颜色
+	setlinecolor(color);																	// 设置画线颜色
+	setfillcolor(color);																	// 设置填充颜色
 
 	const array<array<POINT, 2>, 3> a1{ WIDTH / 2 + 48,HEIGHT - 38,
 		WIDTH / 2 + 48,HEIGHT - 22,WIDTH / 2 + 60,HEIGHT - 30 };
@@ -663,8 +742,13 @@ void GuiMusicPlayer::drawUiEvent()
 
 	line(WIDTH / 2 + 64, HEIGHT - 37, WIDTH / 2 + 64, HEIGHT - 23);							// |
 	line(WIDTH / 2 + 65, HEIGHT - 37, WIDTH / 2 + 65, HEIGHT - 23);
+	// 画开始键按键结束
 
-	setlinecolor(0XAA00AA);
+	// 画音量条，喇叭
+	color = position & (1 << 14) ?  c1 : c0;												// 选择颜色
+	setlinecolor(color);																	// 设置画线颜色
+	setfillcolor(color);																	// 设置填充颜色
+
 	const array<POINT, 14> a2{ WIDTH / 2 + 120,HEIGHT - 34,
 		WIDTH / 2 + 125,HEIGHT - 34,WIDTH / 2 + 129,HEIGHT - 38,
 		WIDTH / 2 + 129,HEIGHT - 22,WIDTH / 2 + 125,HEIGHT - 26,
@@ -676,6 +760,7 @@ void GuiMusicPlayer::drawUiEvent()
 
 	setlinecolor(0XE8E8E8);																	// 浅灰色
 	line(WIDTH / 2 + 140, HEIGHT - 30, WIDTH / 2 + 240, HEIGHT - 30);						// 画音量条
+	// 画音量条，喇叭结束
 }
 
 // 画播放列表箭头事件
@@ -699,7 +784,11 @@ void GuiMusicPlayer::drawPlayListArrowEvent()
 // 画播放列表事件
 void GuiMusicPlayer::drawPlayListEvent()
 {
-	settextcolor(0XAA00AA);															// 字体颜色
+	if (!playList)
+	{
+		return;																		// 未展开播放列表，返回
+	}
+
 	settextstyle(14, 0, L"宋体");													// 字体大小，样式
 	if (!musicData.musicName.empty())												// 显示播放列表
 	{
@@ -709,6 +798,9 @@ void GuiMusicPlayer::drawPlayListEvent()
 			{
 				break;																// 超出显示范围，退出
 			}
+
+			COLORREF color = i == (position & 0x0000000f) - 1 ? 0X0000AA : 0XAA00AA;// 选择颜色
+			settextcolor(color);
 
 			wstring s0;
 			if (musicData.musicName.at(i + numRange.at(0)).size() > 60)				// 超出一定长度的名字只显示一部分
@@ -736,6 +828,9 @@ void GuiMusicPlayer::drawPlayListEvent()
 // 滚动条的绘制属于画播放列表的一部分
 void GuiMusicPlayer::drawPlayListScrollBarEvent()
 {
+	COLORREF color = position & (1 << 5) ? 0X0000AA : 0XAA00AA;							// 选择颜色
+	setfillcolor(color);
+
 	const double k0 = 13 / (musicData.musicName.size() + 0.0);							// 当前页面音乐占所有音乐的比列
 	if (k0 >= 1)
 	{
@@ -745,7 +840,6 @@ void GuiMusicPlayer::drawPlayListScrollBarEvent()
 	const int length = static_cast<int>((HEIGHT - 106) * k0);							// 滚动条长度，随总歌曲数变化
 	const double k1 = numRange.at(0) / (musicData.musicName.size() + 0.0);				// 当前音乐在整个播放列表中的比列
 	const int y1 = static_cast<int>(40 + (HEIGHT - 106) * k1) + 3;						// 滚动条的左上角的纵坐标
-	setfillcolor(0XAA00AA);																// 滚动条颜色，紫色
 	solidrectangle(WIDTH - 10, y1, WIDTH - 2, y1 + length);								// 画滚动条
 }
 
@@ -757,10 +851,13 @@ void GuiMusicPlayer::drawMusicProgressBarEvent()
 	setlinecolor(0XE8E8E8);																// 浅灰色
 	line(0, HEIGHT - 60, WIDTH, HEIGHT - 60);
 	line(0, HEIGHT - 59, WIDTH, HEIGHT - 59);
-	setlinecolor(0XAA00AA);
+
+	COLORREF color = position & (1 << 10) ? 0X0000AA : 0XAA00AA;
+	setlinecolor(color);
+	setfillcolor(color);
+
 	line(0, HEIGHT - 60, static_cast<int>(WIDTH * ((t0 + 0.0) / t1)), HEIGHT - 60);
 	line(0, HEIGHT - 59, static_cast<int>(WIDTH * ((t0 + 0.0) / t1)), HEIGHT - 59);
-	setfillcolor(0XAA00AA);
 	solidcircle(static_cast<int>(WIDTH * ((t0 + 0.0) / t1)), HEIGHT - 60, 4);			// 画进度条小球
 }
 
@@ -838,7 +935,9 @@ void GuiMusicPlayer::drawMusicTimeEvent()
 // 画播放暂停按钮事件
 void GuiMusicPlayer::drawPlayPauseButtonEvent()
 {
-	setfillcolor(0XAA00AA);
+	COLORREF color = position & (1 << 12) ? 0X0000AA : 0XAA00AA;
+
+	setfillcolor(color);
 	solidcircle(WIDTH / 2, HEIGHT - 30, 20);
 
 	setfillcolor(WHITE);
@@ -859,7 +958,9 @@ void GuiMusicPlayer::drawPlayPauseButtonEvent()
 // 画音量条事件
 void GuiMusicPlayer::drawVolumeBarEvent()
 {
-	setfillcolor(0XAA00AA);																	// 紫色
+	COLORREF color = position & (1 << 14) ? 0X0000AA : 0XAA00AA;
+
+	setfillcolor(color);
 	solidrectangle(WIDTH / 2 + 140, HEIGHT - 30,
 		WIDTH / 2 + 140 + static_cast<int>(musicData.volume / 10), HEIGHT - 31);			// 画音量条
 	solidrectangle(WIDTH / 2 + 140 + static_cast<int>(musicData.volume / 10), HEIGHT - 35,
@@ -869,7 +970,9 @@ void GuiMusicPlayer::drawVolumeBarEvent()
 // 画播放模式事件
 void GuiMusicPlayer::drawPlayModeEvent()
 {
-	settextcolor(0XAA00AA);														// 字体颜色
+	COLORREF color = position & (1 << 15) ? 0X0000AA : 0XAA00AA;
+
+	settextcolor(color);
 	settextstyle(14, 0, L"宋体");												// 字体大小，样式
 	wstring playMode;
 	if (musicData.mode == 0)													// 显示播放模式
