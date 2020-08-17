@@ -137,12 +137,6 @@ void GuiMusicPlayer::mouseEvent(const MOUSEMSG& mouse)
 		return;
 	}
 
-	// 若音乐列表未展开，不响应下列事件
-	if (!playList)
-	{
-		return;
-	}
-
 	// 处理鼠标播放列表事件
 	if (mousePlayListEvent(mouse))
 	{
