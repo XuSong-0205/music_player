@@ -49,6 +49,11 @@ private:
 	bool mouseVolumeBarEvent(const MOUSEMSG&);				// 鼠标音量条事件
 	bool mousePlayModeEvent(const MOUSEMSG&);				// 鼠标播放模式事件
 
+	bool keyboardSpaceEvent(int key);						// 键盘空格键事件
+	bool keyboardEnterEvent(int key);						// 键盘回车键事件
+	bool keyboardUpDownEvent(int key);						// 键盘上下键事件
+	bool keyboardLeftRightEvent(int key);					// 键盘左右键事件
+
 	void timerPlayMusicEvent();								// 定时器播放音乐事件
 
 	void drawUiEvent();										// 画静态 ui

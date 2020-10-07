@@ -14,6 +14,7 @@ GuiMusicPlayer::GuiMusicPlayer()
 {
 	srand(time(nullptr) & 0xffffffff);
 	initgraph(WIDTH, HEIGHT
+
 #ifdef _DEBUG
 		, SHOWCONSOLE
 #endif
@@ -86,7 +87,7 @@ void GuiMusicPlayer::event()
 			// 获取键盘按键信息
 			key = _getch();
 			// 如果读取到的键码等于 224，则为功能键，第二次读取结果为其真实键码
-			// 若为功能键，则 8 - 15 位为第一次读取到的键码，0 - 7 位为真实键码
+			// 8 - 15 为第一次读取的键码，0 - 7 位为真实键码
 			if (key == 224)
 			{
 				key <<= 8;
@@ -189,7 +190,29 @@ void GuiMusicPlayer::mouseEvent(const MOUSEMSG& mouse)
 // 键盘事件
 void GuiMusicPlayer::keyBoardEvent(int key)
 {
-	// 暂无
+	// 处理键盘空格键事件
+	if (keyboardSpaceEvent(key))
+	{
+		return;
+	}
+
+	// 处理键盘回车键事件
+	if (keyboardEnterEvent(key))
+	{
+		return;
+	}
+
+	// 处理键盘左右键事件
+	if (keyboardLeftRightEvent(key))
+	{
+		return;
+	}
+
+	// 处理键盘上下键事件
+	if (keyboardUpDownEvent(key))
+	{
+		return;
+	}
 }
 
 // 定时器事件
@@ -633,9 +656,126 @@ bool GuiMusicPlayer::mousePlayModeEvent(const MOUSEMSG& mouse)
  * 键盘事件在一个事件循环中也应只响应一个						*
  ****************************************************************/
 
- // 键盘事件暂无
- // 键盘事件同时也只能响应一个
- // 以类似于鼠标事件的方法实现
+// 键盘空格键事件
+// 播放，暂停当前音乐
+bool GuiMusicPlayer::keyboardSpaceEvent(int key)
+{
+	if (key == 0X20)
+	{
+		if (musicData.status == 1) musicData.pauseMusic();		// 若正在播放，暂停
+		else if (musicData.status == 2) musicData.playMusic();	// 若暂停，开始播放
+
+		return true;											// 该事件以处理
+	}
+
+	return false;												// 该事件未处理
+}
+
+// 键盘回车键事件
+// 若鼠标不在播放列表中，将打开或关闭播放列表
+// 若在播放列表，则播放当前所指向的音乐（红色）
+bool GuiMusicPlayer::keyboardEnterEvent(int key)
+{
+	if (key == 0XD)
+	{
+		size_t currIndex = position & 0XF;
+		if (currIndex != 0)													// 是否在播放列表中
+		{
+			currIndex += numRange.at(0) - 1;
+			if (musicData.status != 0) musicData.closeMusic();				// 不是未播放状态，关闭当前音乐
+
+			musicData.openMusic(currIndex);									// 打开并播放 currIndex 指向的音乐
+		}
+		else
+		{
+			playList = !playList;											// 关闭或打开播放列表
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
+// 键盘上下键事件
+// 若不在播放列表，则进行上一曲，下一曲操作
+// 若在播放列表中，进行播放列表中音乐的选取，滚动播放列表
+bool GuiMusicPlayer::keyboardUpDownEvent(int key)
+{
+	if (key == ((0XE0 << 8) | 0X48) || key == ((0XE0 << 8) | 0X50))				// 是否为上，下键
+	{
+		int dir = key == ((0XE0 << 8) | 0X48) ? -1 : 1;							// 上 -1,下 1
+		int currIndex = position & 0XF;											// 在当前音乐播放列表中所指的位置
+		
+		if (currIndex == 0)														// 鼠标不在播放列表，进行上一曲，下一曲操作
+		{
+			if (musicData.status) musicData.closeMusic();						// 关闭之前的音乐
+
+			if (musicData.mode == 2)											// 随机播放
+			{
+				musicData.openMusic(rand() % musicData.musicName.size());	
+			}
+			else
+			{
+				if (dir == -1)													// 上一曲
+				{
+					musicData.openMusic(musicData.number == 0 ?
+						musicData.musicName.size() - 1 : musicData.number - 1);
+				}
+				else if (dir == 1)												// 下一曲
+				{
+					musicData.openMusic(musicData.number + 1 >=
+						musicData.musicName.size() ? 0 : musicData.number + 1);
+				}
+			}
+		}
+		else
+		{
+			if (currIndex == 1 && dir == -1)									// 在播放列表第一个，且向上翻页
+			{
+				numRange.at(0) -= numRange.at(0) > 0 ? 1 : 0;					// 向上滚动播放列表
+				numRange.at(1) = numRange.at(0) + 12;
+			}
+			else if (currIndex == 13 && dir == 1)								// 在播放列表最后一个，且向下翻页
+			{
+				numRange.at(1) += numRange.at(1) <								// 向下滚动播放列表
+					musicData.musicName.size() - 1 ? 1 : 0;
+				numRange.at(0) = numRange.at(1) - 12;
+			}
+			else
+			{
+				position += dir;												// 向上或向下在播放列表中移动
+			}
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
+// 键盘左右键事件
+// 左键减小音量，右键增大音量
+bool GuiMusicPlayer::keyboardLeftRightEvent(int key)
+{
+	auto vol = musicData.volume;
+	if (key == ((0XE0 << 8) | 0X4B))											// 左键，音量减小 50
+	{
+		vol = vol < 50 ? 0 : vol - 50;
+		musicData.setMusicVolume(vol);
+
+		return true;															// 该事件已被处理
+	}
+	else if (key == ((0XE0 << 8) | 0X4D))										// 右键，音量增加 50
+	{
+		vol = vol > 950 ? 1000 : vol + 50;
+		musicData.setMusicVolume(vol);
+
+		return true;
+	}
+
+	return false;
+}
 
 
 /****************************************************************

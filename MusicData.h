@@ -21,7 +21,7 @@ private:
 	size_t status = 0;										// 播放状态 0未播放 1正在播放 2暂停播放 3播放完毕
 	size_t volume = 400;									// 当前音量大小
 	size_t number = 0;										// 正在操作的音乐编号
-	size_t mode = 2;										// 音乐播放模式 0单个播放 1顺序播放(列表循环) 2随机播放
+	size_t mode = 2;										// 音乐播放模式 0单曲循环 1顺序播放(列表循环) 2随机播放
 
 	void openMusic(size_t num);								// 打开并播放音乐
 	void playMusic();										// 播放音乐
