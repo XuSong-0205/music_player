@@ -14,6 +14,7 @@
 FILE* STD_COUT_STREAM = nullptr;								// 指向标准输出流的文件指针
 #endif // _DEBUG
 
+
 // 打开并播放音乐
 void MusicData::openMusic(size_t num)
 {
@@ -369,11 +370,12 @@ MusicData::MusicData()
 {
 	srand(time(nullptr) & 0xffffffff);
 
-#ifdef _DEBUG
 	AllocConsole();														// 添加控制台
+#ifdef _DEBUG
 	freopen_s(&STD_COUT_STREAM, "CON", "w", stdout);					// 重定向标准输出流
 	std::wcout.imbue(std::locale("", LC_CTYPE));
 #endif // _DEBUG
+
 
 	FILE* fp = nullptr;													// 文件指针
 	auto err = _wfopen_s(&fp, L"music.mn", L"r, ccs=UTF-16LE");			// 以 只读，UTF-16LE 编码格式打开文件
