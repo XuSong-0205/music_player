@@ -17,7 +17,7 @@ GuiMusicPlayer::GuiMusicPlayer()
 
 #ifdef _DEBUG
 		, SHOWCONSOLE
-#endif
+#endif	// _DEBUG
 	);
 
 	if (musicData.musicName.empty())
