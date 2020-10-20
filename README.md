@@ -9,7 +9,7 @@
 ## 介绍
 这是程序打开后的界面，此时播放列表默认为隐藏状态，鼠标点击播放列表或者其旁边的小箭头，即可展开音乐播放列表
 
-<img src="https://f.myid.email/ca/de/42/320bb6-4309-a3ac-2b5efb21d7dc/Files/0x00.jpg" width="720" height="480" alt="图片1"/><br/>
+<img src="https://img-blog.csdnimg.cn/20201020192134126.jpg" width="720" height="480" alt="图片1"/><br/>
 
 
 下图为正在播放音乐时的界面，可以看到，有显示播放列表，右侧有播放列表的滚动条（紫色），显示音乐播放的进度条，
