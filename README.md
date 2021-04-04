@@ -9,7 +9,7 @@
 ## 介绍
 这是程序打开后的界面，此时播放列表默认为隐藏状态，鼠标点击播放列表或者其旁边的小箭头，即可展开音乐播放列表
 
-![image1](https://github.com/XuSong-0205/image/blob/master/code_project_image/0x00.jpg)
+<img src="https://img-blog.csdnimg.cn/20201020192134126.jpg" width="720" height="480" alt="图片1"/><br/>
 
 
 下图为正在播放音乐时的界面，可以看到，有显示播放列表，右侧有播放列表的滚动条（紫色），显示音乐播放的进度条，
@@ -32,7 +32,17 @@
 
 右上角退出键，点击即可退出关闭音乐播放器
 
-![image2](https://github.com/XuSong-0205/image/blob/master/code_project_image/0x01.jpg)
+
+<img src="https://f.myid.email/ca/de/42/320bb6-4309-a3ac-2b5efb21d7dc/Files/0x01.jpg" width="720" height="480" alt="图片2"/><br/>
+
+
+## 新增功能
+
+播放列表未打开，或鼠标未在播放列表中停留时，回车键为打开/关闭播放列表，打开播放列表后，可将鼠标移动至播放列表中，
+
+使用回车键为打开选中的高亮(红色)音乐，此时还可使用上下方向键移动选择音乐
+
+空格键为开始/暂停音乐，左右方向键为减小/增加音量
 
 
 ## 注意事项 
