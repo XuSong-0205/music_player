@@ -212,6 +212,42 @@ int MusicData::getMusicTotalTime()
 	return 0;
 }
 
+// 播放上一曲
+void MusicData::prevMusic()
+{
+	if (status)													// 是否需要关闭音乐
+	{
+		closeMusic();
+	}
+
+	if (mode == 0 || mode == 1)									// 若不是随机播放，上一曲
+	{
+		openMusic(number == 0 ? musicName.size() - 1 : number - 1);
+	}
+	else														// 是随机播放，随机一曲
+	{
+		openMusic(rand() % musicName.size());
+	}
+}
+
+// 播放下一曲
+void MusicData::nextMusic()
+{
+	if (status)
+	{
+		closeMusic();
+	}
+
+	if (mode == 0 || mode == 1)
+	{
+		openMusic(number + 1 > musicName.size() - 1 ? 0 : number + 1);
+	}
+	else
+	{
+		openMusic(rand() % musicName.size());
+	}
+}
+
 
 // 从文件 filePath.ini 中读取搜索路径
 void MusicData::getFilePath()

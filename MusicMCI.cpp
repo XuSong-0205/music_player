@@ -44,7 +44,7 @@ bool MusicMCI::open(LPCWSTR strSongPath)noexcept
 }
 
 // 播放
-// 成功返回非零值，失败返回0
+// 成功返回 true，失败返回 false
 bool MusicMCI::play()noexcept
 {
 	MCI_PLAY_PARMS mciPP{};

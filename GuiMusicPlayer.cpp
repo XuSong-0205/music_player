@@ -542,20 +542,7 @@ bool GuiMusicPlayer::mousePreviousMusicButtonEvent(const MOUSEMSG& mouse)
 
 		if (mouse.mkLButton)
 		{
-			if (musicData.status)													// 是否需要关闭音乐
-			{
-				musicData.closeMusic();
-			}
-
-			if (musicData.mode == 0 || musicData.mode == 1)							// 若不是随机播放，上一曲
-			{
-				musicData.openMusic(musicData.number == 0 ? 
-					musicData.musicName.size() - 1 : musicData.number - 1);
-			}
-			else																	// 是随机播放，随机一曲
-			{
-				musicData.openMusic(rand() % musicData.musicName.size());
-			}
+			musicData.prevMusic();													// 播放上一曲
 
 			return true;															// 事件已被处理
 		}
@@ -578,20 +565,7 @@ bool GuiMusicPlayer::mouseNextMusicButonEvent(const MOUSEMSG& mouse)
 
 		if (mouse.mkLButton)
 		{
-			if (musicData.status)
-			{
-				musicData.closeMusic();
-			}
-
-			if (musicData.mode == 0 || musicData.mode == 1)
-			{
-				musicData.openMusic(musicData.number + 1 > 
-					musicData.musicName.size() - 1 ? 0 : musicData.number + 1);
-			}
-			else
-			{
-				musicData.openMusic(rand() % musicData.musicName.size());
-			}
+			musicData.nextMusic();										// 播放下一曲
 
 			return true;												// 该事件已被处理
 		}
@@ -719,13 +693,11 @@ bool GuiMusicPlayer::keyboardUpDownEvent(int key)
 			{
 				if (dir == -1)													// 上一曲
 				{
-					musicData.openMusic(musicData.number == 0 ?
-						musicData.musicName.size() - 1 : musicData.number - 1);
+					musicData.prevMusic();
 				}
 				else if (dir == 1)												// 下一曲
 				{
-					musicData.openMusic(musicData.number + 1 >=
-						musicData.musicName.size() ? 0 : musicData.number + 1);
+					musicData.nextMusic();
 				}
 			}
 		}
@@ -800,16 +772,11 @@ void GuiMusicPlayer::timerPlayMusicEvent()
 																			// 查询播放模式，进行下一步播放
 		if (musicData.mode == 0)											// 单曲循环
 		{
-			musicData.openMusic(musicData.number);
+			musicData.openMusic(musicData.number);							// 继续播放当前音乐
 		}
-		else if (musicData.mode == 1)										// 顺序播放
+		else
 		{
-			musicData.openMusic(musicData.number + 1 > musicData.musicName.size() - 1 ?
-				0 : musicData.number + 1);
-		}
-		else if (musicData.mode == 2)										// 随机播放
-		{
-			musicData.openMusic(rand() % musicData.musicName.size());
+			musicData.nextMusic();											// 下一曲
 		}
 	}
 }
@@ -836,13 +803,13 @@ void GuiMusicPlayer::drawUiEvent()
 	constexpr COLORREF c0 = 0XAA00AA;									// 紫色
 	constexpr COLORREF c1 = 0X0000AA;									// 红色
 
-	settextcolor(c1);																		// 字体颜色
-	settextstyle(15, 0, L"宋体");															// 字体样式
-	setbkmode(TRANSPARENT);																	// 文字输出背景透明
+	settextcolor(c1);													// 字体颜色
+	settextstyle(15, 0, L"宋体");										// 字体样式
+	setbkmode(TRANSPARENT);												// 文字输出背景透明
 	outtextxy(WIDTH - 40, 10, L"退出");
 	setlinecolor(0XE8E8E8);
-	line(0, 40, WIDTH, 40);																	// 上边界线
-	line(0, HEIGHT - 60, WIDTH, HEIGHT - 60);												// 画进度条
+	line(0, 40, WIDTH, 40);												// 上边界线
+	line(0, HEIGHT - 60, WIDTH, HEIGHT - 60);							// 画进度条
 	line(0, HEIGHT - 59, WIDTH, HEIGHT - 59);
 
 	outtextxy(50, 60, L"我的音乐");
@@ -853,47 +820,47 @@ void GuiMusicPlayer::drawUiEvent()
 	 ***************************************************************************************/
 
 	// 画上一曲按键
-	COLORREF color = position & (1 << 11) ? c1 : c0;										// 选择颜色
-	setlinecolor(color);																	// 设置画线颜色
-	setfillcolor(color);																	// 设置填充颜色
+	COLORREF color = position & (1 << 11) ? c1 : c0;					// 选择颜色
+	setlinecolor(color);												// 设置画线颜色
+	setfillcolor(color);												// 设置填充颜色
 	
-	line(WIDTH / 2 - 64, HEIGHT - 37, WIDTH / 2 - 64, HEIGHT - 23);							// |
+	line(WIDTH / 2 - 64, HEIGHT - 37, WIDTH / 2 - 64, HEIGHT - 23);		// |
 	line(WIDTH / 2 - 65, HEIGHT - 37, WIDTH / 2 - 65, HEIGHT - 23);
 
 	const array<array<POINT, 2>, 3> a0{ WIDTH / 2 - 48,HEIGHT - 38,
 		WIDTH / 2 - 48,HEIGHT - 22,WIDTH / 2 - 60,HEIGHT - 30 };
-	solidpolygon(&a0.at(0).at(0), 3);														// <|
+	solidpolygon(&a0.at(0).at(0), 3);									// <|
 	// 画上一曲按键结束
 
 	// 画下一曲按键
-	color = position & (1 << 13) ? c1 : c0;													// 选择颜色
-	setlinecolor(color);																	// 设置画线颜色
-	setfillcolor(color);																	// 设置填充颜色
+	color = position & (1 << 13) ? c1 : c0;								// 选择颜色
+	setlinecolor(color);												// 设置画线颜色
+	setfillcolor(color);												// 设置填充颜色
 
 	const array<array<POINT, 2>, 3> a1{ WIDTH / 2 + 48,HEIGHT - 38,
 		WIDTH / 2 + 48,HEIGHT - 22,WIDTH / 2 + 60,HEIGHT - 30 };
-	solidpolygon(&a1.at(0).at(0), 3);														// |>
+	solidpolygon(&a1.at(0).at(0), 3);									// |>
 
-	line(WIDTH / 2 + 64, HEIGHT - 37, WIDTH / 2 + 64, HEIGHT - 23);							// |
+	line(WIDTH / 2 + 64, HEIGHT - 37, WIDTH / 2 + 64, HEIGHT - 23);		// |
 	line(WIDTH / 2 + 65, HEIGHT - 37, WIDTH / 2 + 65, HEIGHT - 23);
 	// 画开始键按键结束
 
 	// 画音量条，喇叭
-	color = position & (1 << 14) ?  c1 : c0;												// 选择颜色
-	setlinecolor(color);																	// 设置画线颜色
-	setfillcolor(color);																	// 设置填充颜色
+	color = position & (1 << 14) ?  c1 : c0;							// 选择颜色
+	setlinecolor(color);												// 设置画线颜色
+	setfillcolor(color);												// 设置填充颜色
 
 	const array<POINT, 14> a2{ WIDTH / 2 + 120,HEIGHT - 34,
 		WIDTH / 2 + 125,HEIGHT - 34,WIDTH / 2 + 129,HEIGHT - 38,
 		WIDTH / 2 + 129,HEIGHT - 22,WIDTH / 2 + 125,HEIGHT - 26,
 		WIDTH / 2 + 120,HEIGHT - 26,WIDTH / 2 + 120,HEIGHT - 34 };
-	polyline(&a2.at(0), 7);																	// 画小喇叭
+	polyline(&a2.at(0), 7);												// 画小喇叭
 
 	arc(WIDTH / 2 + 125, HEIGHT - 35, WIDTH / 2 + 135,
-		HEIGHT - 25, -3.1415926 / 3, 3.1415926 / 3);										// 画圆弧
+		HEIGHT - 25, -3.1415926 / 3, 3.1415926 / 3);					// 画圆弧
 
-	setlinecolor(0XE8E8E8);																	// 浅灰色
-	line(WIDTH / 2 + 140, HEIGHT - 30, WIDTH / 2 + 240, HEIGHT - 30);						// 画音量条
+	setlinecolor(0XE8E8E8);												// 浅灰色
+	line(WIDTH / 2 + 140, HEIGHT - 30, WIDTH / 2 + 240, HEIGHT - 30);	// 画音量条
 	// 画音量条，喇叭结束
 }
 

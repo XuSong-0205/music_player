@@ -33,6 +33,9 @@ private:
 	int getMusicCurrentTime();								// 获取音乐的当前播放时间
 	int getMusicTotalTime();								// 获取音乐的总时间
 
+	void prevMusic();										// 上一曲
+	void nextMusic();										// 下一曲
+
 	void getFilePath();										// 获取搜索路径
 	void findMusicName(const wstring& path);				// 寻找音乐文件
 	void wFilePath();										// 将 filePath 写入文件 filePath.ini
